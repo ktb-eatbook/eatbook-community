@@ -17,7 +17,7 @@ markdown에 관한 내용은 다음을 통해 확인할 수 있습니다.
   - Prisma Schema: [ktb-eatbook/eatbook-community/schema.prisma](https://github.com/ktb-eatbook/eatbook-community/blob/master/prisma/schema.prisma)  
 
 
-[![https://github.com/user-attachments/assets/aebdc9d3-bf50-4fe5-a39b-48dab47e9f5d](https://github.com/ktb-eatbook/eatbook-community/blob/master/ERD.md)]  
+[![Example Case](https://github.com/user-attachments/assets/aebdc9d3-bf50-4fe5-a39b-48dab47e9f5d)](https://github.com/ktb-eatbook/eatbook-community/blob/master/ERD.md)  
   
    
 
@@ -28,8 +28,7 @@ markdown에 관한 내용은 다음을 통해 확인할 수 있습니다.
 
 ### 환경  
 
->NodeJS v20.18.0
-Postgresql v17.2.0
+>NodeJS v20.18.0 Postgresql v17.2.0
 
 ### 설치  
 
