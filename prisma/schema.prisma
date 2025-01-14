@@ -65,7 +65,7 @@ model novelsnapshot {
   /// @format CUID
   id String @id @db.VarChar(30) @default(cuid())
 
-  /// 해당 snapshot과 연결되어 있는 소설의 고유 식별자 입니다. (@link novel.id)
+  /// 해당 snapshot과 연결되어 있는 소설의 고유 식별자 입니다. {@link novel.id}
   ///
   /// @format CUID
   novel_id String @db.VarChar(30)
@@ -94,7 +94,7 @@ model requester {
   /// @format CUID
   id String @id @db.VarChar(30) @default(cuid())
 
-  /// 소설 등록 요청자와 연결되어 있는 snapshot의 고유 식별자 입니다. (@link novelsnapshot.id)
+  /// 소설 등록 요청자와 연결되어 있는 snapshot의 고유 식별자 입니다. {@link novelsnapshot.id}
   ///
   /// @format CUID
   novelsnapshot_id String @unique @db.VarChar(30)
@@ -125,7 +125,7 @@ model novelinfo {
   /// @format CUID
   id String @id @db.VarChar(30) @default(cuid())
 
-  /// 소설 정보와 연결되어 있는 snapshot의 고유 식별자 입니다. (@link novelsnapshot.id)
+  /// 소설 정보와 연결되어 있는 snapshot의 고유 식별자 입니다. {@link novelsnapshot.id}
   ///
   /// @format CUID
   novelsnapshot_id String @unique @db.VarChar(30)
@@ -167,7 +167,7 @@ model novelinfosnapshot {
   /// @format url
   ref String @db.VarChar
 
-  /// 해당 snapshot과 연결되어 있는 소설 정보의 고유 식별자 입니다. (@link novelinfo.id)
+  /// 해당 snapshot과 연결되어 있는 소설 정보의 고유 식별자 입니다. {@link novelinfo.id}
   ///
   /// @format CUID
   novelinfo_id String @unique @db.VarChar(30)
@@ -193,7 +193,7 @@ model novelstatus {
   /// @format CUID
   id String @id @db.VarChar(30) @default(cuid())
 
-  /// 소설 정보와 연결되어 있는 snapshot의 고유 식별자 입니다. (@link novelsnapshot.id)
+  /// 소설 정보와 연결되어 있는 snapshot의 고유 식별자 입니다. {@link novelsnapshot.id}
   ///
   /// @format CUID
   novelsnapshot_id String @unique @db.VarChar(30)
@@ -221,7 +221,7 @@ model novelstatussnapshot {
   /// @format CUID
   id String @id @db.VarChar(30) @default(cuid())
 
-  /// 해당 snapshot과 연결되어 있는 소설 등록 요청 상태의 고유 식별자 입니다. (@link novelinfo.id)
+  /// 해당 snapshot과 연결되어 있는 소설 등록 요청 상태의 고유 식별자 입니다. {@link novelinfo.id}
   ///
   /// @format CUID
   novelstatus_id String @unique @db.VarChar(30)
