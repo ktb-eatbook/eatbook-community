@@ -41,8 +41,7 @@ npm install
 정의된 Prisma schema를 DB와 동기화 합니다.
 
 ```prisma
-npx prisma generate
-
+npx prisma generate  
 npx prisma db push
 ```  
 
@@ -55,7 +54,6 @@ npm run start:dev
 Production 모드로 서버를 실행합니다.
 
 ```bash
-npm build
-
+npm build  
 npm run start:prod
 ```
