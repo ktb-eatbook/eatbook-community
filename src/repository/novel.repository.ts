@@ -1,14 +1,14 @@
 import { Injectable } from "@nestjs/common";
 
 import { 
-    NovelEntity,
+    INovelEntity,
     NovelProvider, 
     NovelUCICode 
 } from "../provider";
 
 @Injectable()
 export class NovelRepository {
-    public async registerNovel(args: RegisterNovelArgs): Promise<NovelEntity> {
+    public async registerNovel(args: IRegisterNovelArgs): Promise<INovelEntity> {
         return await NovelProvider
         .Entity
         .create({
@@ -45,7 +45,7 @@ export class NovelRepository {
         })
     }
 
-    public async getNovelList(page: number & tags.Minimum<1>): Promise<NovelList> {
+    public async getNovelList(page: number): Promise<INovelList> {
         return await PrismaService
         .client
         .$transaction(async tx => {
@@ -71,11 +71,11 @@ export class NovelRepository {
             return {
                 totalCount,
                 list,
-            } satisfies NovelList
+            } satisfies INovelList
         })
     }
 
-    public async getNovel(id: NovelUCICode): Promise<NovelEntity> {
+    public async getNovel(id: NovelUCICode): Promise<INovelEntity> {
         return await NovelProvider
         .Entity
         .findUnique({
@@ -85,7 +85,7 @@ export class NovelRepository {
         })
     }
 
-    public async deleteNovel(id: NovelUCICode): Promise<NovelEntity> {
+    public async deleteNovel(id: NovelUCICode): Promise<INovelEntity> {
         return await NovelProvider
         .Entity
         .remove(id)
@@ -95,12 +95,12 @@ export class NovelRepository {
 import { tags } from "typia"
 import { PrismaService } from "../common/prisma";
 
-export interface NovelList {
+export interface INovelList {
     totalCount: number
-    list: NovelEntity[]
+    list: INovelEntity[]
 }
 
-export interface RegisterNovelArgs {
+export interface IRegisterNovelArgs {
     id: NovelUCICode
     requesterEmail: string & tags.Format<"email">
     requesterName: string

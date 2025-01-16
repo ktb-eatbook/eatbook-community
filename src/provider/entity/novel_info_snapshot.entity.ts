@@ -1,6 +1,6 @@
 import { tags } from "typia"
 
-export interface NovelInfoSnapshotEntity {
+export interface INovelInfoSnapshotEntity {
     id: string & tags.MaxLength<30>
     title: string & tags.MaxLength<200>
     description: string & tags.MaxLength<200>

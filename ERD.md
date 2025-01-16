@@ -14,7 +14,7 @@ erDiagram
 "requester" {
   String id PK
   String novel_id FK
-  String email
+  String email UK
   String name
   Int sequence
   DateTime createdAt
@@ -85,6 +85,8 @@ UCI를 PK로 사용하며, 해당 소설 등록 요청한 사용자들을 reques
 ### `novelinfo`
 등록 요청한 소설의 정보입니다.
 
+최초 요청자를 제외한 추가 요청자는 해당 테이블의 값이 항상 null입니다.
+
 **Properties**
   - `id`: PK
   - `requester_id`: 소설 정보와 연결되어 있는 snapshot의 고유 식별자 입니다. [novelsnapshot.id](#novelsnapshot)
@@ -110,6 +112,8 @@ UCI를 PK로 사용하며, 해당 소설 등록 요청한 사용자들을 reques
 
 ### `novelstatus`
 소설 등록 요청 처리를 위한 테이블 입니다.
+
+최초 요청자를 제외한 추가 요청자는 해당 테이블의 값이 항상 null입니다.
 
 **Properties**
   - `id`: PK

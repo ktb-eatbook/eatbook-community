@@ -1,9 +1,9 @@
 import { tags } from "typia"
 
-import { NovelInfoSnapshotEntity } from "./novel_info_snapshot.entity"
+import { INovelInfoSnapshotEntity } from "./novel_info_snapshot.entity"
 
-export interface NovelInfoEntity {
+export interface INovelInfoEntity {
     id: string & tags.MaxLength<30>
-    snapshots: NovelInfoSnapshotEntity[]
+    snapshots: INovelInfoSnapshotEntity[]
     createdAt: Date
 }

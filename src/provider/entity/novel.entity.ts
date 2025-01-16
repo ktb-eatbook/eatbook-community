@@ -1,9 +1,9 @@
 import { tags } from "typia"
-import { RequesterEntity } from "./requester.entity"
+import { IRequesterEntity } from "./requester.entity"
 
-export interface NovelEntity {
+export interface INovelEntity {
     id: NovelUCICode
-    requesters: RequesterEntity[]
+    requesters: IRequesterEntity[]
     createdAt: Date
     deleteAt: Date | null
 }

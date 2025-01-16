@@ -7,6 +7,7 @@ import { AppModule } from './app.module';
 import { IPGuard } from './guard/ip.guard';
 
 import { serverConfigs } from './common';
+import { ValidationExceptionFilter } from './filter/validation.filter';
 
 const logger: Logger = new Logger("Bootstrap")
 
@@ -26,6 +27,7 @@ async function bootstrap() {
   app.enableCors(corsOptions)
 
   app.useGlobalGuards(new IPGuard())
+  app.useGlobalFilters(new ValidationExceptionFilter())
 
   await app.listen(serverConfigs.serverPort ?? 3000)
   .then(_=> {

@@ -1,6 +1,6 @@
 import { tags } from "typia"
 
-export interface NovelStatusSnapshotEntity {
+export interface INovelStatusSnapshotEntity {
     id: string & tags.MaxLength<30>
     reason: string & tags.MaxLength<300>
     status: NovelStatus

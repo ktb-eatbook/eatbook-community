@@ -5,7 +5,7 @@ import { PrismaService } from "../common/prisma";
 
 import { 
     NovelStatus, 
-    NovelStatusSnapshotEntity 
+    INovelStatusSnapshotEntity 
 } from "./entity";
 import { DefaultArgs } from "@prisma/client/runtime/library";
 
@@ -25,7 +25,7 @@ export namespace NovelStatusSnapshotProvider {
             responsiblePerson: entity.responsiblePerson,
             responsiblePersonEmail: entity.responsiblePersonEmail,
             createdAt: new Date(entity.createdAt),
-        } satisfies NovelStatusSnapshotEntity)
+        } satisfies INovelStatusSnapshotEntity)
         export const select = () => Prisma.validator<Prisma.novelstatussnapshotFindManyArgs>()({})
 
         /// ------
@@ -34,7 +34,7 @@ export namespace NovelStatusSnapshotProvider {
         export const create = async (
             args: Prisma.novelstatussnapshotCreateArgs,
             tx?: Omit<PrismaClient<Prisma.PrismaClientOptions, never, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$transaction" | "$use" | "$extends">,
-        ): Promise<NovelStatusSnapshotEntity> => await (tx ?? PrismaService.client)
+        ): Promise<INovelStatusSnapshotEntity> => await (tx ?? PrismaService.client)
         .novelstatussnapshot
         .create({
             ...args,

@@ -1,10 +1,11 @@
 import { Prisma, PrismaClient } from "@prisma/client";
+import { DefaultArgs } from "@prisma/client/runtime/library";
 
 import { PrismaService } from "../common/prisma";
 
-import { NovelEntity, NovelUCICode } from "./entity";
+import { ERROR } from "../common";
+import { INovelEntity, NovelUCICode } from "./entity";
 import { RequesterProvider } from "./request.provider";
-import { DefaultArgs } from "@prisma/client/runtime/library";
 
 export namespace NovelProvider {
     export const handleException = (e: Error) => { return PrismaService.handleException(e) }
@@ -13,13 +14,16 @@ export namespace NovelProvider {
         /// Parsing
         /// ------
         export const toJson = (
-            entity: Prisma.novelGetPayload<ReturnType<typeof select>>
-        ) => ({
-            id: entity.id,
-            requesters: entity.requesters.map(requester => RequesterProvider.Entity.toJson(requester)),
-            createdAt: new Date(entity.createdAt),
-            deleteAt: entity.deletedAt ? new Date(entity.deletedAt) : null,
-        } satisfies NovelEntity)
+            entity: Prisma.novelGetPayload<ReturnType<typeof select>> | null
+        ) => {
+            if(!entity) throw ERROR.NotFoundData
+            return {
+                id: entity.id,
+                requesters: entity.requesters.map(requester => RequesterProvider.Entity.toJson(requester)),
+                createdAt: new Date(entity.createdAt),
+                deleteAt: entity.deletedAt ? new Date(entity.deletedAt) : null,
+            } satisfies INovelEntity
+        }
         export const select = () => Prisma.validator<Prisma.novelFindManyArgs>()({
             include: {
                 requesters: RequesterProvider.Entity.select(),
@@ -32,7 +36,7 @@ export namespace NovelProvider {
         export const findMany = async (
             args: Prisma.novelFindManyArgs,
             tx?: Omit<PrismaClient<Prisma.PrismaClientOptions, never, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$transaction" | "$use" | "$extends">,
-        ): Promise<NovelEntity[]> => await (tx ?? PrismaService.client)
+        ): Promise<INovelEntity[]> => await (tx ?? PrismaService.client)
         .novel
         .findMany({
             ...args,
@@ -46,7 +50,7 @@ export namespace NovelProvider {
         export const findUnique = async (
             args: Prisma.novelFindUniqueArgs,
             tx?: Omit<PrismaClient<Prisma.PrismaClientOptions, never, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$transaction" | "$use" | "$extends">,
-        ) : Promise<NovelEntity> => await (tx ?? PrismaService.client)
+        ) : Promise<INovelEntity> => await (tx ?? PrismaService.client)
         .novel
         .findUnique({
             ...args,
@@ -61,7 +65,7 @@ export namespace NovelProvider {
         export const create = async (
             args: Prisma.novelCreateArgs,
             tx?: Omit<PrismaClient<Prisma.PrismaClientOptions, never, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$transaction" | "$use" | "$extends">,
-        ) : Promise<NovelEntity> => await (tx ?? PrismaService.client)
+        ) : Promise<INovelEntity> => await (tx ?? PrismaService.client)
         .novel
         .create({
             ...args,
@@ -73,7 +77,7 @@ export namespace NovelProvider {
         export const remove = async (
             id: NovelUCICode,
             tx?: Omit<PrismaClient<Prisma.PrismaClientOptions, never, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$transaction" | "$use" | "$extends">,
-        ) : Promise<NovelEntity> => await (tx ?? PrismaService.client)
+        ) : Promise<INovelEntity> => await (tx ?? PrismaService.client)
         .novel
         .update({
             where: {

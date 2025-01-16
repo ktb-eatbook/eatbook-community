@@ -3,7 +3,7 @@ import { Prisma, PrismaClient } from "@prisma/client";
 
 import { PrismaService } from "../common/prisma";
 
-import { NovelInfoSnapshotEntity } from "./entity/novel_info_snapshot.entity";
+import { INovelInfoSnapshotEntity } from "./entity/novel_info_snapshot.entity";
 import { DefaultArgs } from "@prisma/client/runtime/library";
 
 const logger: Logger = new Logger("NovelInfoSnapshotProvider")
@@ -22,7 +22,7 @@ export namespace NovelInfoSnapshotProvider {
             description: entity.description,
             ref: entity.ref,
             createdAt: new Date(entity.createdAt),
-        } satisfies NovelInfoSnapshotEntity)
+        } satisfies INovelInfoSnapshotEntity)
         export const select = () => Prisma.validator<Prisma.novelinfosnapshotFindManyArgs>()({})
 
         /// ------
@@ -31,7 +31,7 @@ export namespace NovelInfoSnapshotProvider {
         export const create = async (
             args: Prisma.novelinfosnapshotCreateArgs,
             tx?: Omit<PrismaClient<Prisma.PrismaClientOptions, never, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$transaction" | "$use" | "$extends">,
-        ): Promise<NovelInfoSnapshotEntity> => await (tx ?? PrismaService.client)
+        ): Promise<INovelInfoSnapshotEntity> => await (tx ?? PrismaService.client)
         .novelinfosnapshot
         .create({
             ...args,
