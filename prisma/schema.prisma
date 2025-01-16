@@ -74,7 +74,7 @@ model requester {
   /// 소설 등록 요청자의 이메일 주소입니다.
   ///
   /// @format email
-  email String @db.VarChar
+  email String @unique @db.VarChar
 
   /// 소설 요청자의 이름입니다.
   name String @db.VarChar
@@ -92,10 +92,13 @@ model requester {
   info novelinfo? @relation("NovelInfo")
   status novelstatus? @relation("NovelStatus")
   novel novel @relation("Requester", references: [id], fields: [novel_id])
+
+  @@index([email])
 }
 
 /// 등록 요청한 소설의 정보입니다.
 ///
+/// 최초 요청자를 제외한 추가 요청자는 해당 테이블의 값이 항상 null입니다.
 /// @namespace Novel
 model novelinfo {
   //----
@@ -165,6 +168,7 @@ model novelinfosnapshot {
 
 /// 소설 등록 요청 처리를 위한 테이블 입니다.
 ///
+/// 최초 요청자를 제외한 추가 요청자는 해당 테이블의 값이 항상 null입니다.
 /// @namespace Novel
 model novelstatus {
   //----

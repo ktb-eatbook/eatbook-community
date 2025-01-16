@@ -1,4 +1,4 @@
-import { Injectable, Logger } from "@nestjs/common";
+import { Logger } from "@nestjs/common";
 import { PrismaClient } from "@prisma/client";
 import { 
     PrismaClientInitializationError, 
@@ -22,7 +22,9 @@ export class PrismaService {
      * @returns FailedResponse
      */
     public static handleException(e: Error): FailedResponse {
-        if(e instanceof PrismaClientKnownRequestError) {
+        if("status" in e) {
+            throw e
+        } else if(e instanceof PrismaClientKnownRequestError) {
             this.printKnownRequestError(e)
         } else if(e instanceof PrismaClientUnknownRequestError) {
             this.printUnKnownRequestError(e)

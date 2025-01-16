@@ -1,13 +1,10 @@
-import { Logger } from "@nestjs/common";
 import { Prisma } from "@prisma/client";
 
 import { PrismaService } from "../common/prisma";
 
 import { NovelInfoSnapshotProvider } from "./novel_info_snapshot.provider";
 
-import { NovelInfoEntity } from "./entity/novel_info.entity";
-
-const logger: Logger = new Logger("NovelInfoProvider")
+import { INovelInfoEntity } from "./entity/novel_info.entity";
 
 export namespace NovelInfoProvider {
     export const handleException = (e: Error): void => { throw PrismaService.handleException(e) }
@@ -25,7 +22,7 @@ export namespace NovelInfoProvider {
                     snapshot => NovelInfoSnapshotProvider.Entity.toJson(snapshot)
                 ),
                 createdAt: new Date(entity.createdAt),
-            } satisfies NovelInfoEntity
+            } satisfies INovelInfoEntity
         }
         export const select = () => Prisma.validator<Prisma.novelinfoFindManyArgs>()({
             include: {
