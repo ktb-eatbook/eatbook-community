@@ -11,20 +11,17 @@ erDiagram
   DateTime createdAt
   DateTime deletedAt "nullable"
 }
-"novelsnapshot" {
-  String id PK
-  String novel_id FK
-  DateTime createdAt
-}
 "requester" {
   String id PK
-  String novelsnapshot_id FK
+  String novel_id FK
   String email
   String name
+  Int sequence
+  DateTime createdAt
 }
 "novelinfo" {
   String id PK
-  String novelsnapshot_id FK
+  String requester_id FK
   DateTime createdAt
 }
 "novelinfosnapshot" {
@@ -37,7 +34,7 @@ erDiagram
 }
 "novelstatus" {
   String id PK
-  String novelsnapshot_id FK
+  String requester_id FK
   DateTime createdAt
 }
 "novelstatussnapshot" {
@@ -46,18 +43,20 @@ erDiagram
   String reason
   String status
   String responsiblePersonEmail
+  String responsiblePerson
   DateTime createdAt
 }
-"novelsnapshot" }o--|| "novel" : novel
-"requester" |o--|| "novelsnapshot" : novelsnapshot
-"novelinfo" |o--|| "novelsnapshot" : novelsnapshot
+"requester" |o--|| "novel" : novel
+"novelinfo" |o--|| "requester" : requester
 "novelinfosnapshot" |o--|| "novelinfo" : novelinfo
-"novelstatus" |o--|| "novelsnapshot" : novelsnapshot
+"novelstatus" |o--|| "requester" : requester
 "novelstatussnapshot" |o--|| "novelstatus" : novelstatus
 ```
 
 ### `novel`
-소설 테이블은 최초 요청 시, 생성 되며 이후에 오는 중복된 요청은 snapshot에 기록됩니다.
+UCI를 PK로 사용하며, 해당 소설 등록 요청한 사용자들을 requester로 묶어 관리하고 있습니다.
+이 구조는 Novel 조회와 Requester 조회를 분리하여 관리자는 모든 소설에 대한 정보를,
+사용자는 자신이 등록한 소설의 정보를 확인할 수 있도록 설계되었습니다.
 
 **Properties**
   - `id`
@@ -67,34 +66,28 @@ erDiagram
   - `createdAt`: 최초 소설 등록 요청일
   - `deletedAt`: 소설 등록 요청 삭제 일
 
-### `novelsnapshot`
-소설 등록 요청을 snapshot으로 만들어 타임라인 순서대로 저장해 유지 보수와 데이터 추적에 용이하도록 합니다.
-
-같은 소설을 다른 사용자가 요청하거나 처리상태, 소설 입력 정보를 롤백해야 할 경우에도 용이합니다.
-
-특정 소설에 대한 모든 요청을 snapshot으로 저장하는 특성을 활용하여 가장 많은 요청을 받은 소설,
-사람들의 관심을 가장 많이 받고 있는 소설 등 확장에 가능성을 두고 설계하였습니다.
-
-**Properties**
-  - `id`: PK
-  - `novel_id`: 해당 snapshot과 연결되어 있는 소설의 고유 식별자 입니다. [novel.id](#novel)
-  - `createdAt`: 소설 등록 요청일 입니다.
-
 ### `requester`
 소설 등록 요청자의 정보입니다.
 
+하나의 소설에 여러 사용자가 등록 요청을 할 수 있습니다.
+이 구조는 하나의 소설에 대해 등록 요청한 여러 사용자의 이력을 추적할 수 있습니다.
+
 **Properties**
   - `id`: PK
-  - `novelsnapshot_id`: 소설 등록 요청자와 연결되어 있는 snapshot의 고유 식별자 입니다. [novelsnapshot.id](#novelsnapshot)
+  - `novel_id`: 소설 등록 요청자와 연결되어 있는 소설의 고유 식별자 입니다. [novel.id](#novel)
   - `email`: 소설 등록 요청자의 이메일 주소입니다.
   - `name`: 소설 요청자의 이름입니다.
+  - `sequence`
+    > 소설 등록 요청한 순서 입니다.
+    > 1값을 가진 등록자가 최초 소설 등록 요청한 사람입니다.
+  - `createdAt`: 소설 등록 요청한 일입니다.
 
 ### `novelinfo`
 등록 요청한 소설의 정보입니다.
 
 **Properties**
   - `id`: PK
-  - `novelsnapshot_id`: 소설 정보와 연결되어 있는 snapshot의 고유 식별자 입니다. [novelsnapshot.id](#novelsnapshot)
+  - `requester_id`: 소설 정보와 연결되어 있는 snapshot의 고유 식별자 입니다. [novelsnapshot.id](#novelsnapshot)
   - `createdAt`: 최초 소설 정보를 등록한 일입니다.
 
 ### `novelinfosnapshot`
@@ -120,7 +113,7 @@ erDiagram
 
 **Properties**
   - `id`: PK
-  - `novelsnapshot_id`: 소설 정보와 연결되어 있는 snapshot의 고유 식별자 입니다. [novelsnapshot.id](#novelsnapshot)
+  - `requester_id`: 소설 정보와 연결되어 있는 snapshot의 고유 식별자 입니다. [novelsnapshot.id](#novelsnapshot)
   - `createdAt`: 최초 소설 요청 처리를 등록한 일입니다.
 
 ### `novelstatussnapshot`
@@ -136,4 +129,5 @@ erDiagram
     > 정상 처리에 경우 "완료"와 같은 형식 통일이 필요합니다.
   - `status`: 소설 등록 요청 상태입니다.
   - `responsiblePersonEmail`: 소설 등록 요청 처리를 한 담당자의 이메일 주소입니다.
+  - `responsiblePerson`: 소설 등록 요청 처리를 한 담당자의 이름입니다.
   - `createdAt`: 소설 요청 처리를 등록한 일입니다.

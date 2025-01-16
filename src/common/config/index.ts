@@ -3,6 +3,7 @@ dotenv.config()
 
 export const serverConfigs = {
     serverPort: process.env.SERVER_PORT,
-    googleEmailPass: process.env.GOOGLE_EMAIL_AUTH_PASS,
-    googleEmail: process.env.GOOGLE_AUTH_EMAIL,
+    authEmailPass: process.env.GOOGLE_EMAIL_AUTH_PASS,
+    authEmail: process.env.GOOGLE_AUTH_EMAIL,
+    host: process.env.GOOGLE_AUTH_HOST,
 }
