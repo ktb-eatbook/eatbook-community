@@ -9,13 +9,13 @@ export type SubStatus =
 export type SuccessResponse<T> = {
     readonly data: T
     readonly status: number
-    readonly metadata?: unknown
+    readonly metadata?: string
 }
 
 export type FailedResponse = {
     readonly message: string
     readonly status: number
-    substatus?: SubStatus
+    metadata?: string
 }
 
 export const ERROR : Record<string, FailedResponse> = {

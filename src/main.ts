@@ -8,12 +8,17 @@ import { IPGuard } from './guard/ip.guard';
 
 import { serverConfigs } from './common';
 import { ValidationExceptionFilter } from './filter/validation.filter';
+import { SwaggerSetting } from 'swagger.setting';
 
 const logger: Logger = new Logger("Bootstrap")
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule)
 
+  
+  /// ---
+  /// Cors
+  /// ---
   /**
    * Prod 배포 시, origin 변경 필요
    */
@@ -23,11 +28,18 @@ async function bootstrap() {
     credentials: false,
     allowedHeaders: ["Authorization", "Content-Type"]
   }
-
   app.enableCors(corsOptions)
 
+  /// ---
+  /// Middleware
+  /// ---
   app.useGlobalGuards(new IPGuard())
   app.useGlobalFilters(new ValidationExceptionFilter())
+
+  /// ---
+  /// Swagger
+  /// ---
+  SwaggerSetting(app)
 
   await app.listen(serverConfigs.serverPort ?? 3000)
   .then(_=> {

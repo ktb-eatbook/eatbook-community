@@ -14,7 +14,7 @@ erDiagram
 "requester" {
   String id PK
   String novel_id FK
-  String email UK
+  String email
   String name
   Int sequence
   DateTime createdAt
@@ -46,11 +46,11 @@ erDiagram
   String responsiblePerson
   DateTime createdAt
 }
-"requester" |o--|| "novel" : novel
+"requester" }o--|| "novel" : novel
 "novelinfo" |o--|| "requester" : requester
 "novelinfosnapshot" |o--|| "novelinfo" : novelinfo
 "novelstatus" |o--|| "requester" : requester
-"novelstatussnapshot" |o--|| "novelstatus" : novelstatus
+"novelstatussnapshot" }o--|| "novelstatus" : novelstatus
 ```
 
 ### `novel`
@@ -74,7 +74,7 @@ UCI를 PK로 사용하며, 해당 소설 등록 요청한 사용자들을 reques
 
 **Properties**
   - `id`: PK
-  - `novel_id`: 소설 등록 요청자와 연결되어 있는 소설의 고유 식별자 입니다. [novel.id](#novel)
+  - `novel_id`: 소설 등록 요청자와 연결되어 있는 소설의 식별자 입니다. [novel.id](#novel)
   - `email`: 소설 등록 요청자의 이메일 주소입니다.
   - `name`: 소설 요청자의 이름입니다.
   - `sequence`
@@ -126,7 +126,7 @@ UCI를 PK로 사용하며, 해당 소설 등록 요청한 사용자들을 reques
 
 **Properties**
   - `id`: PK
-  - `novelstatus_id`: 해당 snapshot과 연결되어 있는 소설 등록 요청 상태의 고유 식별자 입니다. [novelinfo.id](#novelinfo)
+  - `novelstatus_id`: 해당 snapshot과 연결되어 있는 소설 등록 요청 상태의 식별자 입니다. [novelinfo.id](#novelinfo)
   - `reason`
     > 소설 등록 요청 결과에 대한 사유입니다.
     > 

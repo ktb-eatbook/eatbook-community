@@ -19,7 +19,7 @@ export class MailService {
           port: 587,
           secure: false,
           auth: {
-            user: serverConfigs.authEmail,
+            user: serverConfigs.authUser,
             pass: serverConfigs.authEmailPass,
           }
       })
@@ -32,7 +32,7 @@ export class MailService {
       await this.transporter.sendMail({
         from: serverConfigs.authEmail, 
         subject: "새로운 소설 등록 요청이 도착했습니다",
-        to: args.to,
+        to: serverConfigs.authEmail,
         html: this.getAlertTemplete(args)
       })
       console.log('메일이 전송되었습니다')
@@ -46,7 +46,7 @@ export class MailService {
       await this.transporter.sendMail({
         from: serverConfigs.authEmail, 
         subject: "소설 등록 요청 결과 리마인드 메일입니다",
-        to: args.to,
+        to: args.responsiblePersonEmail,
         html: this.getRemindertTemplete(args)
       })
       console.log('메일이 전송되었습니다')
@@ -89,7 +89,7 @@ export interface MailArgs {}
 
 export interface AlertMailArgs extends MailArgs {
   requester: string
-  to: string & tags.Format<"email">
+  requesterEmail: string & tags.Format<"email">
   title: string & tags.MaxLength<200>
   description: string & tags.MaxLength<200>
   ref: string & tags.Format<"url">
@@ -97,10 +97,6 @@ export interface AlertMailArgs extends MailArgs {
 }
 
 export interface StatusMailArgs extends MailArgs {
-  novel_id: NovelUCICode
-  title: string & tags.MaxLength<200>
-  requester: string
-  to: string & tags.Format<"email">
   responsiblePerson: string
   responsiblePersonEmail: string & tags.Format<"email">
   status: NovelStatus

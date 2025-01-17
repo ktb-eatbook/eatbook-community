@@ -27,20 +27,5 @@ export namespace NovelStatusSnapshotProvider {
             createdAt: new Date(entity.createdAt),
         } satisfies INovelStatusSnapshotEntity)
         export const select = () => Prisma.validator<Prisma.novelstatussnapshotFindManyArgs>()({})
-
-        /// ------
-        /// Query
-        /// ------
-        export const create = async (
-            args: Prisma.novelstatussnapshotCreateArgs,
-            tx?: Omit<PrismaClient<Prisma.PrismaClientOptions, never, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$transaction" | "$use" | "$extends">,
-        ): Promise<INovelStatusSnapshotEntity> => await (tx ?? PrismaService.client)
-        .novelstatussnapshot
-        .create({
-            ...args,
-            ...Entity.select(),
-        })
-        .then(Entity.toJson)
-        .catch((e) => { throw handleException(e) })
     }
 }

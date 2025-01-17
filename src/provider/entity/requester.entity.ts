@@ -16,3 +16,18 @@ export interface IRequesterEntity {
     sequence: number
     createdAt: Date
 }
+
+export interface IInitialRequester {
+    id: string & tags.MaxLength<30>
+    novelId: NovelUCICode
+    email: string & tags.Format<"email">
+    name: string
+    novelInfo: INovelInfoEntity
+    novelStatus: INovelStatusEntity
+    sequence: number
+    createdAt: Date
+}
+
+export const getInitialRequester = (requesters: IRequesterEntity[]): IInitialRequester | undefined => {
+    return requesters.find(requester => requester.sequence === 1) as IInitialRequester
+}
