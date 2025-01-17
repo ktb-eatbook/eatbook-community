@@ -45,6 +45,12 @@ npx prisma generate
 npx prisma db push
 ```  
 
+스웨거를 생성합니다.  
+
+```bash
+npx nestia swagger
+```
+
 개발 모드로 서버를 실행합니다.
 
 ```bash
