@@ -14,6 +14,6 @@ export const SwaggerSetting = (app: INestApplication) => {
     //
     // 기본적으로 네스티아 빌드를 하게되면 dist 폴더를 만들어 그곳에서 실행 시키는데
     // 해당 설정파일들 또한 그곳에 있는 파일로 사용되는지 경로 시작점이 dist이다.
-    const swaggerConfig = readFileSync(path.join(__dirname,"../swagger.json"), 'utf-8')
+    const swaggerConfig = readFileSync(path.join(__dirname,"../swagger/swagger.json"), 'utf-8')
     SwaggerModule.setup('docs', app, JSON.parse(swaggerConfig))
 }
