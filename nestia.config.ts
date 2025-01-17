@@ -26,7 +26,7 @@ export const NESTIA_CONFIG: INestiaConfig = {
      * Otherwise you've configured the full path with file name and extension, the
      * `swagger.json` file would be renamed to it.
      */
-    output: "./swagger.json",
+    output: "./swagger/swagger.json",
     operationId: (props) => `${props.class}.${props.function}`,
     info: { 
       description: "Eatbook 커뮤니티 API Docs",
