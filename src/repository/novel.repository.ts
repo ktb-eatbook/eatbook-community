@@ -2,6 +2,7 @@ import { Injectable } from "@nestjs/common";
 
 import { 
     INovelEntity,
+    INovelStatusSnapshotEntity,
     NovelProvider, 
     NovelUCICode 
 } from "../provider";
@@ -45,7 +46,10 @@ export class NovelRepository {
         })
     }
 
-    public async getNovelList(page: number): Promise<INovelList> {
+    public async getNovelList(
+        page: number,
+        orderBy: "asc" | "desc",
+    ): Promise<INovelList> {
         return await PrismaService
         .client
         .$transaction(async tx => {
@@ -55,12 +59,10 @@ export class NovelRepository {
                 skip: (page - 1) * 10,
                 take: page * 10,
                 where: {
-                    deletedAt: {
-                        not: null
-                    }
+                    deletedAt: null,
                 },
                 orderBy: {
-                    createdAt: "desc"
+                    createdAt: orderBy
                 }
             }, tx)
 
@@ -92,7 +94,6 @@ export class NovelRepository {
     }
 }
 
-import { tags } from "typia"
 import { PrismaService } from "../common/prisma";
 
 export interface INovelList {
@@ -102,9 +103,9 @@ export interface INovelList {
 
 export interface IRegisterNovelArgs {
     id: NovelUCICode
-    requesterEmail: string & tags.Format<"email">
+    requesterEmail: string
     requesterName: string
-    novelTitle: string & tags.MaxLength<200>
-    novelDescription: string & tags.MaxLength<200>
-    ref: string & tags.Format<"url">
+    novelTitle: string
+    novelDescription: string
+    ref: string
 }

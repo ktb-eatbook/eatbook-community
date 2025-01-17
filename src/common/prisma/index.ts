@@ -7,7 +7,7 @@ import {
     PrismaClientUnknownRequestError,
     PrismaClientValidationError, 
 } from "@prisma/client/runtime/library";
-import { ERROR, FailedResponse } from "../exception";
+import { ERROR, FailedResponse } from "../responose";
 
 const logger: Logger = new Logger("Prisma")
 
@@ -37,7 +37,7 @@ export class PrismaService {
         } else {
             this.printDefaultError(e)
         }
-        return ERROR.BadRequest
+        throw ERROR.BadRequest
     }
 
     private static printKnownRequestError(e: PrismaClientKnownRequestError) {
@@ -45,7 +45,26 @@ export class PrismaService {
         logger.error(ERROR.ServerDatabaseError.message)
         logger.error(`Status: ${e.code}`)
         logger.error(`Reason: ${e.message}`)
-        if(e.meta) { logger.error(`Meta: ${e.meta}`) }
+        if(e.meta) { logger.error(`Meta: ${Object.values(e.meta)}`) }
+        const statusCode = parseInt(e.code.split("P")[1])
+        let error = ERROR.BadRequest
+        switch(statusCode) {
+            case 2001:
+                error = ERROR.NotFoundData
+                break
+            case 2015:
+                error = ERROR.NotFoundData
+                error.metadata = "존재하지 않는 테이블을 참조했습니다."
+                break
+            case 2011:
+                error = ERROR.Conflict
+                break
+            case 2025:
+                error.metadata = "존재하지 않는 테이블을 참조했습니다."
+                break
+        }
+
+        throw error
     }
 
     private static printUnKnownRequestError(e: PrismaClientUnknownRequestError) {

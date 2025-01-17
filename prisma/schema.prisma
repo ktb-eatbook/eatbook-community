@@ -66,15 +66,15 @@ model requester {
   /// @format CUID
   id String @id @db.VarChar(30) @default(cuid())
 
-  /// 소설 등록 요청자와 연결되어 있는 소설의 고유 식별자 입니다. {@link novel.id}
+  /// 소설 등록 요청자와 연결되어 있는 소설의 식별자 입니다. {@link novel.id}
   ///
   /// @format CUID
-  novel_id String @unique @db.VarChar(30)
+  novel_id String @db.VarChar(30)
 
   /// 소설 등록 요청자의 이메일 주소입니다.
   ///
   /// @format email
-  email String @unique @db.VarChar
+  email String @db.VarChar
 
   /// 소설 요청자의 이름입니다.
   name String @db.VarChar
@@ -91,7 +91,7 @@ model requester {
   //----
   info novelinfo? @relation("NovelInfo")
   status novelstatus? @relation("NovelStatus")
-  novel novel @relation("Requester", references: [id], fields: [novel_id])
+  novel novel @relation("Requester", references: [id], fields: [novel_id], onDelete: Cascade)
 
   @@index([email])
 }
@@ -120,7 +120,7 @@ model novelinfo {
   //----
   // RELATIONS
   //----
-  requester requester @relation("NovelInfo", references: [id], fields: [requester_id])
+  requester requester @relation("NovelInfo", references: [id], fields: [requester_id], onDelete: Cascade)
   snapshot novelinfosnapshot[] @relation("NovelInfoSnapshot")
 }
 
@@ -190,7 +190,7 @@ model novelstatus {
   //----
   // RELATIONS
   //----
-  requester requester @relation("NovelStatus", references: [id], fields: [requester_id])
+  requester requester @relation("NovelStatus", references: [id], fields: [requester_id], onDelete: Cascade)
   snapshot novelstatussnapshot[] @relation("NovelStatusSnapshot")
 }
 
@@ -207,10 +207,10 @@ model novelstatussnapshot {
   /// @format CUID
   id String @id @db.VarChar(30) @default(cuid())
 
-  /// 해당 snapshot과 연결되어 있는 소설 등록 요청 상태의 고유 식별자 입니다. {@link novelinfo.id}
+  /// 해당 snapshot과 연결되어 있는 소설 등록 요청 상태의 식별자 입니다. {@link novelinfo.id}
   ///
   /// @format CUID
-  novelstatus_id String @unique @db.VarChar(30)
+  novelstatus_id String @db.VarChar(30)
 
   /// 소설 등록 요청 결과에 대한 사유입니다.
   ///
@@ -236,5 +236,5 @@ model novelstatussnapshot {
   //----
   // RELATIONS
   //----
-  novelstatus novelstatus @relation("NovelStatusSnapshot", fields: [novelstatus_id], references: [id])
+  novelstatus novelstatus @relation("NovelStatusSnapshot", fields: [novelstatus_id], references: [id], onDelete: Cascade)
 }

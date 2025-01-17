@@ -8,16 +8,13 @@ import {
 } from "../repository/novel.repository";
 
 import { 
+    getInitialRequester,
+    getLatestNovelInfo,
+    IInitialRequester,
     INovelEntity,
-    INovelInfoEntity, 
     INovelInfoSnapshotEntity, 
-    INovelStatusEntity,
-    INovelStatusSnapshotEntity,
-    IRequesterEntity, 
     NovelUCICode 
 } from "../provider";
-
-import { tags } from "typia"
 
 const logger: Logger = new Logger("NovelService")
 
@@ -28,14 +25,18 @@ export class NovelService {
         private readonly novelRepository: NovelRepository,
     ){}
 
-    public async registerNovel(args: IRegisterNovelArgs): Promise<void> {
+    public async registerNovel(args: IRegisterNovelArgs): Promise<INovelEntity> {
         const result = await this.novelRepository.registerNovel(args)
-        this.sendReminderEmail(result)
+        this.sendAlertEmail(result)
         /// 소설이 등록 요청이 성공하였음을 알리는 알림 로직 추가
+        return result
     }
 
-    public async getNovelList(page: number & tags.Minimum<1>): Promise<INovelList> {
-        return await this.novelRepository.getNovelList(page)
+    public async getNovelList(
+        page: number,
+        orderBy: "asc" | "desc",
+    ): Promise<INovelList> {
+        return await this.novelRepository.getNovelList(page, orderBy)
     }
 
     public async getNovel(id: NovelUCICode): Promise<INovelEntity> {
@@ -48,65 +49,33 @@ export class NovelService {
         return deletedNovel !== undefined || deletedNovel !== null
     }
 
-    private async sendReminderEmail(novel: INovelEntity) {
+    private async sendAlertEmail(novel: INovelEntity) {
         try {
-            const requester = this.getInitialRequester(novel.requesters)
+            const requester = getInitialRequester(novel.requesters)
             if(requester) {
-                const statusInfo = this.getLatestNovelStatus(requester.novelStatus)
-                const novelInfo = this.getLatestNovelInfo(requester.novelInfo)
-                const responsiblePersonEmails = requester.novelStatus.snapshots.map(snapshot => snapshot.responsiblePersonEmail)
-                await Promise.all(
-                    responsiblePersonEmails.map(
-                        async email => this.mailService.sendReminderTempleteEmail({
-                            novel_id: novel.id,
-                            to: email,
-                            requester: requester.name,
-                            title: novelInfo.title,
-                            reason: statusInfo.reason,
-                            responsiblePerson: statusInfo.responsiblePerson,
-                            responsiblePersonEmail: statusInfo.responsiblePersonEmail,
-                            status: statusInfo.status,
-                            createdAt: requester.createdAt,
-                        })
-                    )
+                const novelInfo = getLatestNovelInfo(requester.novelInfo)
+                await this.mailService.sendAlertEmail(
+                    this.packedAlertEmailArgs(requester, novelInfo)
                 )
             }
-            return
         } catch(e) {
-            logger.error("소설 등록 알림메일 송신 실패")
+            logger.error("소설 등록 알림 메일 송신 실패")
             logger.error(`Reason: ${e}`)
             return
         }
     }
 
-    private getInitialRequester(requesters: IRequesterEntity[]): IInitialRequester | undefined {
-        return requesters.find(requester => requester.sequence === 1) as IInitialRequester
+    private packedAlertEmailArgs(
+        requester: IInitialRequester,
+        novelInfo: INovelInfoSnapshotEntity,
+    ) {
+        return {
+            requester: requester.name,
+            requesterEmail: requester.email,
+            description: novelInfo.description,
+            title: novelInfo.title,
+            ref: novelInfo.ref,
+            createdAt: requester.createdAt,
+        }
     }
-
-    private getLatestNovelInfo(novelInfo: INovelInfoEntity): INovelInfoSnapshotEntity {
-        return novelInfo.snapshots.sort((a, b) => {
-            if(a.createdAt > b.createdAt) return 1
-            else if(a.createdAt < b.createdAt) return -1
-            return 0
-        })[0]
-    }
-
-    private getLatestNovelStatus(novelStatus: INovelStatusEntity): INovelStatusSnapshotEntity {
-        return novelStatus.snapshots.sort((a, b) => {
-            if(a.createdAt > b.createdAt) return 1
-            else if(a.createdAt < b.createdAt) return -1
-            return 0
-        })[0]
-    }
-}
-
-export interface IInitialRequester {
-    id: string & tags.MaxLength<30>
-    novelId: NovelUCICode
-    email: string & tags.Format<"email">
-    name: string
-    novelInfo: INovelInfoEntity
-    novelStatus: INovelStatusEntity
-    sequence: number
-    createdAt: Date
 }

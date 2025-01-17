@@ -56,6 +56,15 @@ export namespace RequesterProvider {
         .then(Entity.toJson)
         .catch((e) => { throw handleException(e) })
 
+        export const findFirst = async (
+            args: Prisma.requesterFindFirstArgs,
+            tx?: Omit<PrismaClient<Prisma.PrismaClientOptions, never, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$transaction" | "$use" | "$extends">,
+        ) => await (tx ?? PrismaService.client)
+        .requester
+        .findFirst(args)
+        .then(Entity.toJson)
+        .catch((e) => { throw handleException(e) })
+
         /**
          * 해당 함수로 생성된 requester는 sequence값이 항상 1을 초과합니다.
          */

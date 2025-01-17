@@ -1,4 +1,5 @@
-import { Prisma } from "@prisma/client";
+import { Prisma, PrismaClient } from "@prisma/client";
+import { DefaultArgs } from "@prisma/client/runtime/library";
 
 import { PrismaService } from "../common/prisma";
 
@@ -29,5 +30,20 @@ export namespace NovelStatusProvider {
                 snapshot: NovelStatusSnapshotProvider.Entity.select(),
             }
         })
+
+        /// ------
+        /// Query
+        /// ------
+        export const update = async (
+            args: Prisma.novelstatusUpdateArgs,
+            tx?: Omit<PrismaClient<Prisma.PrismaClientOptions, never, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$transaction" | "$use" | "$extends">,
+        ): Promise<INovelStatusEntity | null> => await (tx ?? PrismaService.client)
+        .novelstatus
+        .update({
+            ...args,
+            ...Entity.select(),
+        })
+        .then(Entity.toJson)
+        .catch((e) => { throw handleException(e) })
     }
 }
