@@ -48,6 +48,7 @@ npx prisma db push
 스웨거를 생성합니다.  
 
 ```bash
+mkdir swagger
 npx nestia swagger
 ```
 
