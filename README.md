@@ -13,8 +13,8 @@
 
 markdown에 관한 내용은 다음을 통해 확인할 수 있습니다.  
 
-  - Markdown Content: [ktb-eatbook/eatbook-community/ERD.md](https://github.com/ktb-eatbook/eatbook-community/blob/master/ERD.md)
-  - Prisma Schema: [ktb-eatbook/eatbook-community/schema.prisma](https://github.com/ktb-eatbook/eatbook-community/blob/master/prisma/schema.prisma)  
+  - Markdown Content: [https://github.com/ktb-eatbook/eatbook-community/blob/master/ERD.md](https://github.com/ktb-eatbook/eatbook-community/blob/master/ERD.md)
+  - Prisma Schema: [https://github.com/ktb-eatbook/eatbook-community/blob/master/prisma/schema.prisma](https://github.com/ktb-eatbook/eatbook-community/blob/master/prisma/schema.prisma)  
 
 
 [![Example Case](https://github.com/user-attachments/assets/aebdc9d3-bf50-4fe5-a39b-48dab47e9f5d)](https://github.com/ktb-eatbook/eatbook-community/blob/master/ERD.md)  
