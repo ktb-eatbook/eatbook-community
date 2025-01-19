@@ -48,7 +48,7 @@ export class NovelStatusService {
             const snapshots = this.deduplicatedSnapshots(novelStatus.snapshots)
             await Promise.all(
                 snapshots.map(
-                    (snapshot) => this.mailService.sendReminderTempleteEmail(
+                    (snapshot) => this.mailService.sendReminderEmail(
                         this.packedReminderEmailArgs(snapshot)
                     )
                 )

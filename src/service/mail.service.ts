@@ -41,7 +41,7 @@ export class MailService {
     }
   }
 
-  public async sendReminderTempleteEmail(args: StatusMailArgs): Promise<void> {
+  public async sendReminderEmail(args: StatusMailArgs): Promise<void> {
     try {
       await this.transporter.sendMail({
         from: serverConfigs.authEmail, 
@@ -83,7 +83,7 @@ export class MailService {
 }
 
 import { tags } from "typia"
-import { NovelStatus, NovelUCICode } from "../provider";
+import { NovelStatus } from "../provider";
 
 export interface MailArgs {}
 
