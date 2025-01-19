@@ -7,4 +7,5 @@ export const serverConfigs = {
     authEmail: process.env.GOOGLE_AUTH_EMAIL,
     authUser: process.env.GOOGLE_AUTH_USER,
     host: process.env.GOOGLE_AUTH_HOST,
+    managerEmail: process.env.MANAGER_EMAIL,
 }

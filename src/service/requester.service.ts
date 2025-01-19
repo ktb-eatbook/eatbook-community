@@ -16,7 +16,7 @@ export class RequesterService {
         private readonly requsterRepository: RequesterRepository,
     ){}
 
-    public async searchRequeter(id: string) {
+    public async searchRequester(id: string) {
         const result = await this.requsterRepository
         .findRequester(id)
         .then(this.packedRequesterDto)

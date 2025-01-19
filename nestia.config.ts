@@ -33,7 +33,7 @@ export const NESTIA_CONFIG: INestiaConfig = {
       contact: {
         email : "rkdalsdl112@gmail.com",
         name: "KangMin Han",
-        url: "https://github.com/rkdalsdl98/mocat-mall-server"
+        url: "https://github.com/rkdalsdl98"
       },
       version: "1.0.0",
     },
@@ -49,8 +49,12 @@ export const NESTIA_CONFIG: INestiaConfig = {
     servers: [
       {
         url: "http://localhost:3000/docs",
-        description: "Community API"
-      }
+        description: "Community API (HTTP)"
+      },
+      {
+        url: "https://localhost:3000/docs",
+        description: "Community API (HTTPS)"
+      },
     ]
   },
 

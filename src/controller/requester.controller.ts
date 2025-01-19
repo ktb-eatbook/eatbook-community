@@ -22,7 +22,7 @@ export class RequesterController {
         @Res() response: Response
     ) {
         try {
-            const result = await this.requesterService.searchRequeter(id)
+            const result = await this.requesterService.searchRequester(id)
             const responseObj: SuccessResponse<IRequesterDto> = {
                 data: result,
                 status: 200,
