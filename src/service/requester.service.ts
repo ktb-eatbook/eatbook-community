@@ -2,13 +2,13 @@ import { Injectable } from "@nestjs/common";
 
 import { IAddRequesterArgs, RequesterRepository } from "../repository/requester.repository";
 import { 
-    getLatestNovelInfo,
-    getLatestNovelStatus,
-    INovelInfoSnapshotEntity, 
-    INovelStatusSnapshotEntity, 
     IRequesterEntity, 
     NovelUCICode 
 } from "../provider";
+import { INovelSnapshotDto, packedNovelSnapshotDto } from "./novel.service";
+import { IRequesterHistoryEntity } from "../provider/entity/requester_history.entity";
+import { getLatestNovelSnapshot } from "../provider/entity/novel_snapshot.entity";
+
 
 @Injectable()
 export class RequesterService {
@@ -16,31 +16,18 @@ export class RequesterService {
         private readonly requsterRepository: RequesterRepository,
     ){}
 
-    public async searchRequester(id: string) {
+    public async searchRequester(requesterId: string): Promise<IRequesterDto> {
         const result = await this.requsterRepository
-        .findRequester(id)
-        .then(this.packedRequesterDto)
+        .findRequester(requesterId)
+        .then(packedRequesterDto)
         return result
     }
 
-    public async registRequester(args: IAddRequesterArgs) {
+    public async registRequester(args: IAddRequesterArgs): Promise<IRequesterDto> {
         const result = await this.requsterRepository
         .addRequester(args)
-        .then(this.packedRequesterDto)
+        .then(packedRequesterDto)
         return result
-    }
-
-    private packedRequesterDto(entity: IRequesterEntity){
-        return {
-            id: entity.id,
-            email: entity.email,
-            name: entity.name,
-            novelId: entity.novelId,
-            novelInfo: entity.novelInfo ? getLatestNovelInfo(entity.novelInfo) : null,
-            novelStatus: entity.novelStatus ? getLatestNovelStatus(entity.novelStatus) : null,
-            sequence: entity.sequence,
-            createdAt: entity.createdAt,
-        } satisfies IRequesterDto
     }
 }
 
@@ -48,11 +35,36 @@ import { tags } from "typia"
 
 export interface IRequesterDto {
     id: string & tags.MaxLength<30>
-    novelId: NovelUCICode
     email: string & tags.Format<"email">
     name: string
-    novelInfo: INovelInfoSnapshotEntity | null
-    novelStatus: INovelStatusSnapshotEntity | null
+    histories: IRequesterHistoryDto[]
+}
+
+export const packedRequesterDto = (entity: IRequesterEntity) => {
+    return {
+        id: entity.id,
+        email: entity.email,
+        name: entity.name,
+        histories: entity.histories.map(history => packedRequesterHistoryDto(history)),
+    } satisfies IRequesterDto
+}
+
+export interface IRequesterHistoryDto {
+    id: string & tags.MaxLength<30>
+    novelId: NovelUCICode
+    novelSnapshot: INovelSnapshotDto
     sequence: number & tags.Minimum<1>
     createdAt: Date
+}
+
+export const packedRequesterHistoryDto = (entity: IRequesterHistoryEntity) => {
+    return {
+        id: entity.id,
+        novelId: entity.novelId,
+        novelSnapshot: packedNovelSnapshotDto(
+            getLatestNovelSnapshot(entity.novelSnapshots)
+        ),
+        sequence: entity.sequence,
+        createdAt: entity.createdAt,
+    } satisfies IRequesterHistoryDto
 }

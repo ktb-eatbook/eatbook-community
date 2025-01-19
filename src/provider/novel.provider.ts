@@ -5,7 +5,7 @@ import { PrismaService } from "../common/prisma";
 
 import { ERROR } from "../common";
 import { INovelEntity, NovelUCICode } from "./entity";
-import { RequesterProvider } from "./request.provider";
+import { NovelSnapshotProvider } from "./novel_snaphost.provider";
 
 export namespace NovelProvider {
     export const handleException = (e: Error) => { return PrismaService.handleException(e) }
@@ -19,14 +19,21 @@ export namespace NovelProvider {
             if(!entity) throw ERROR.NotFoundData
             return {
                 id: entity.id,
-                requesters: entity.requesters.map(requester => RequesterProvider.Entity.toJson(requester)),
+                snapshots: entity.snapshots.map(snapshot => NovelSnapshotProvider.Entity.toJson(snapshot)),
+                requesters: entity.requesters.map(({ id, requesterId }) => ({ historyId: id, requesterId })),
                 createdAt: new Date(entity.createdAt),
                 deleteAt: entity.deletedAt ? new Date(entity.deletedAt) : null,
             } satisfies INovelEntity
         }
         export const select = () => Prisma.validator<Prisma.novelFindManyArgs>()({
             include: {
-                requesters: RequesterProvider.Entity.select(),
+                snapshots: NovelSnapshotProvider.Entity.select(),
+                requesters: {
+                    select: {
+                        id: true,
+                        requesterId: true,
+                    }
+                }
             }
         })
 
@@ -97,9 +104,7 @@ export namespace NovelProvider {
         .novel
         .count({
             where: {
-                deletedAt: {
-                    not: null
-                }
+                deletedAt: null
             }
         })
         .catch((e) => { throw handleException(e) })

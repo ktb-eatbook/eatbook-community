@@ -3,9 +3,13 @@ import { Controller, Res } from "@nestjs/common";
 import { Response } from "express";
 import { tags } from "typia"
 
-import { NovelService } from "../service/novel.service";
-import { INovelEntity, NovelUCICode } from "../provider";
-import { INovelList } from "../repository/novel.repository";
+import { 
+    INovelDto, 
+    INovelDtoList, 
+    IRegistResultDto, 
+    NovelService 
+} from "../service/novel.service";
+import { NovelUCICode } from "../provider";
 import { SuccessResponse } from "../common";
 
 @Controller("novel")
@@ -24,7 +28,7 @@ export class NovelController {
                 query.page,
                 query.orderBy,
             )
-            const responseObj: SuccessResponse<INovelList> = {
+            const responseObj: SuccessResponse<INovelDtoList> = {
                 data: result,
                 status: 200,
             }
@@ -42,7 +46,7 @@ export class NovelController {
     ) {
         try {
             const result = await this.novelService.getNovel(query.id)
-            const responseObj: SuccessResponse<INovelEntity> = {
+            const responseObj: SuccessResponse<INovelDto> = {
                 data: result,
                 status: 200,
             }
@@ -66,8 +70,9 @@ export class NovelController {
                 ref: body.novelInfo.ref,
                 requesterEmail: body.requester.requesterEmail,
                 requesterName: body.requester.requesterName,
+                requesterId: body.requester.requesterId,
             })
-            const responseObj: SuccessResponse<INovelEntity> = {
+            const responseObj: SuccessResponse<IRegistResultDto> = {
                 data: result,
                 status: 201
             }
@@ -115,6 +120,7 @@ export namespace Body {
     }
 
     interface IRequesterInfoArgs {
+        requesterId: string & tags.MaxLength<30> | null
         requesterEmail: string & tags.Format<"email">
         requesterName: string
     }

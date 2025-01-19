@@ -2,7 +2,7 @@ import { Controller, Res } from "@nestjs/common";
 import { TypedBody, TypedRoute } from "@nestia/core";
 import { Response } from "express";
 
-import { NovelStatusService } from "../service/novel_status.service";
+import { INovelStatusDto, NovelStatusService } from "../service/novel_status.service";
 
 @Controller("novel/status")
 export class NovelStatusController {
@@ -23,7 +23,7 @@ export class NovelStatusController {
                 status: body.status,
                 statusId: body.statusId,
             })
-            const responseObj: SuccessResponse<INovelStatusSnapshotEntity> = {
+            const responseObj: SuccessResponse<INovelStatusDto> = {
                 data: result,
                 status: 201,
             }
@@ -36,8 +36,7 @@ export class NovelStatusController {
 }
 
 import { tags } from "typia"
-import { SuccessResponse } from "src/common";
-import { INovelStatusSnapshotEntity } from "src/provider";
+import { SuccessResponse } from "../common";
 
 export namespace Body {
     export interface IUpdateReviewStatusArgs {
