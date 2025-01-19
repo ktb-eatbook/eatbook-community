@@ -44,6 +44,7 @@ export class RequesterController {
                 novelId: body.novelId,
                 email: body.email,
                 name: body.name,
+                requesterId: body.requesterId,
             })
             const responseObj: SuccessResponse<IRequesterDto> = {
                 data: result,
@@ -60,6 +61,7 @@ export class RequesterController {
 export namespace Body {
     export interface IRegistRequesterArgs{
         novelId: NovelUCICode
+        requesterId: string & tags.MaxLength<30> | null
         email: string & tags.Format<"email">
         name: string
     }

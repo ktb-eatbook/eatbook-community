@@ -26,6 +26,8 @@ generator markdown {
 /// 이 구조는 Novel 조회와 Requester 조회를 분리하여 관리자는 모든 소설에 대한 정보를,
 /// 사용자는 자신이 등록한 소설의 정보를 확인할 수 있도록 설계되었습니다.
 ///
+/// 소설에 대한 변경 이력 및 정보는 모두 snapshot에 기록 및 관리됩니다.
+///
 /// @namespace Novel
 /// @author Eatbook
 model novel {
@@ -48,16 +50,14 @@ model novel {
   //----
   // RELATIONS
   //----
-  requesters requester[] @relation("Requester")
+  snapshots novelsnapshot[] @relation("NovelSnapshot")
+  requesters requesterhistory[] @relation("RequesterHistory")
 }
 
-/// 소설 등록 요청자의 정보입니다.
-///
-/// 하나의 소설에 여러 사용자가 등록 요청을 할 수 있습니다.
-/// 이 구조는 하나의 소설에 대해 등록 요청한 여러 사용자의 이력을 추적할 수 있습니다.
+/// 소설의 변경 이력을 기록하는 테이블 입니다.
 ///
 /// @namespace Novel
-model requester {
+model novelsnapshot {
   //----
   // COLUMNS
   //----
@@ -71,6 +71,31 @@ model requester {
   /// @format CUID
   novel_id String @db.VarChar(30)
 
+  // snapshot 생성일
+  createdAt DateTime @default(now())
+
+  //----
+  // RELATIONS
+  //----
+  info novelinfo? @relation("NovelInfo")
+  status novelstatus? @relation("NovelStatus")
+  novel novel @relation("NovelSnapshot", references: [id], fields: [novel_id], onDelete: Cascade)
+}
+
+/// 소설 등록 요청자의 정보입니다.
+///
+/// 요청자의 요청 이력은 모두 history에 기록됩니다.
+///
+/// @namespace Novel
+model requester {
+  //----
+  // COLUMNS
+  //----
+  /// PK
+  ///
+  /// @format CUID
+  id String @id @db.VarChar(30) @default(cuid())
+
   /// 소설 등록 요청자의 이메일 주소입니다.
   ///
   /// @format email
@@ -78,6 +103,37 @@ model requester {
 
   /// 소설 요청자의 이름입니다.
   name String @db.VarChar
+
+  //----
+  // RELATIONS
+  //----
+  history requesterhistory[] @relation("History")
+}
+
+/// 요청자의 기록입니다.
+///
+/// 한 명의 사용자가 여러 요청 혹은 하나의 소설에 여러 사용자가 등록 요청을 할 수 있습니다.
+/// 이 구조는 사용자의 이력을 추적할 수 있습니다.
+///
+/// @namespace Novel
+model requesterhistory {
+  //----
+  // COLUMNS
+  //----
+  /// PK
+  ///
+  /// @format CUID
+  id String @id @db.VarChar(30) @default(cuid())
+
+  /// 요청 기록과 연결되어 있는 소설의 식별자 입니다. {@link novel.id}
+  ///
+  /// @format CUID
+  novelId String @db.VarChar(30)
+  
+  /// 요청자와 연결되어 있는 식별자 입니다. {@link requester.id}
+  ///
+  /// @format CUID
+  requesterId String @db.VarChar(30)
 
   /// 소설 등록 요청한 순서 입니다.
   /// 1값을 가진 등록자가 최초 소설 등록 요청한 사람입니다.
@@ -89,16 +145,12 @@ model requester {
   //----
   // RELATIONS
   //----
-  info novelinfo? @relation("NovelInfo")
-  status novelstatus? @relation("NovelStatus")
-  novel novel @relation("Requester", references: [id], fields: [novel_id], onDelete: Cascade)
-
-  @@index([email])
+  requester requester @relation("History", fields: [requesterId], references: [id], onDelete: Cascade)
+  novel novel @relation("RequesterHistory", fields: [novelId], references: [id], onDelete: Cascade)
 }
 
 /// 등록 요청한 소설의 정보입니다.
 ///
-/// 최초 요청자를 제외한 추가 요청자는 해당 테이블의 값이 항상 null입니다.
 /// @namespace Novel
 model novelinfo {
   //----
@@ -109,10 +161,10 @@ model novelinfo {
   /// @format CUID
   id String @id @db.VarChar(30) @default(cuid())
 
-  /// 소설 정보와 연결되어 있는 snapshot의 고유 식별자 입니다. {@link novelsnapshot.id}
+  /// 소설과 연결되어 있는 snapshot의 고유 식별자 입니다. {@link novelsnapshot.id}
   ///
   /// @format CUID
-  requester_id String @unique @db.VarChar(30)
+  novelSnapshotId String @unique @db.VarChar(30)
 
   /// 최초 소설 정보를 등록한 일입니다.
   createdAt DateTime @default(now())
@@ -120,7 +172,7 @@ model novelinfo {
   //----
   // RELATIONS
   //----
-  requester requester @relation("NovelInfo", references: [id], fields: [requester_id], onDelete: Cascade)
+  novelSnapshot novelsnapshot @relation("NovelInfo", references: [id], fields: [novelSnapshotId], onDelete: Cascade)
   snapshot novelinfosnapshot[] @relation("NovelInfoSnapshot")
 }
 
@@ -168,7 +220,6 @@ model novelinfosnapshot {
 
 /// 소설 등록 요청 처리를 위한 테이블 입니다.
 ///
-/// 최초 요청자를 제외한 추가 요청자는 해당 테이블의 값이 항상 null입니다.
 /// @namespace Novel
 model novelstatus {
   //----
@@ -179,10 +230,10 @@ model novelstatus {
   /// @format CUID
   id String @id @db.VarChar(30) @default(cuid())
 
-  /// 소설 정보와 연결되어 있는 snapshot의 고유 식별자 입니다. {@link novelsnapshot.id}
+  /// 소설과 연결되어 있는 snapshot의 고유 식별자 입니다. {@link novelsnapshot.id}
   ///
   /// @format CUID
-  requester_id String @unique @db.VarChar(30)
+  novelSnapshotId String @unique @db.VarChar(30)
 
   /// 최초 소설 요청 처리를 등록한 일입니다.
   createdAt DateTime @default(now())
@@ -190,7 +241,7 @@ model novelstatus {
   //----
   // RELATIONS
   //----
-  requester requester @relation("NovelStatus", references: [id], fields: [requester_id], onDelete: Cascade)
+  novelSnapshot novelsnapshot @relation("NovelStatus", references: [id], fields: [novelSnapshotId], onDelete: Cascade)
   snapshot novelstatussnapshot[] @relation("NovelStatusSnapshot")
 }
 

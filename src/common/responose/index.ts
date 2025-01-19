@@ -1,15 +1,7 @@
-export type SubStatus = 
-| "NotEqualPass" 
-| "TypeException" 
-| "ForgeryData" 
-| "ExpiredToken" 
-| "Duplicated"
-| "UnAuthorzied"
-
 export type SuccessResponse<T> = {
     readonly data: T
     readonly status: number
-    readonly metadata?: string
+    metadata?: string
 }
 
 export type FailedResponse = {

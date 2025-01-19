@@ -25,14 +25,14 @@ export class NovelStatusService {
 
     /// redis를 사용해서 이미 reviewed인 소설에 대한 처리가 필요
     /// 모든 상태에 대한 추적이 필요는 하지만 읽을 때 마다 reviewed일 필요는 없기 때문
-    public async updateReviewStatus(args: IAddNovelStatusSnapshotArgs): Promise<INovelStatusSnapshotEntity> {
+    public async updateReviewStatus(args: IAddNovelStatusSnapshotArgs): Promise<INovelStatusDto> {
         try {
             assert<NovelStatus>(args.status)
             const result = await this.novelStatusRespository.addNovelStatusSnapshot(args)
             if(!result) throw ERROR.NotFoundData
 
             this.sendReminderEmail(result)
-            return getLatestNovelStatus(result)
+            return packedNovelStatusDto(result)
         } catch(e) {
             if(e instanceof TypeGuardError) {
                 const error = ERROR.BadRequest
@@ -43,6 +43,7 @@ export class NovelStatusService {
         }
     }
 
+    /// * depreacated 에정
     private async sendReminderEmail(novelStatus: INovelStatusEntity) {
         try {
             const snapshots = this.deduplicatedSnapshots(novelStatus.snapshots)
@@ -60,7 +61,7 @@ export class NovelStatusService {
             return
         }
     }
-
+    
     private deduplicatedSnapshots(
         snapshots: INovelStatusSnapshotEntity[],
     ) {
@@ -88,4 +89,29 @@ export class NovelStatusService {
             createdAt: snapshot.createdAt,
         }
     }
+}
+
+import { tags } from "typia"
+
+export interface INovelStatusDto {
+    snapshotId: string & tags.MaxLength<30>
+    statusId: string & tags.MaxLength<30>
+    reason: string & tags.MaxLength<300>
+    status: NovelStatus
+    responsiblePersonEmail: string & tags.Format<"email">
+    responsiblePerson: string
+    createdAt: Date
+}
+
+export const packedNovelStatusDto = (entity: INovelStatusEntity) => {
+    const latestSnapshot = getLatestNovelStatus(entity)
+    return {
+        snapshotId: latestSnapshot.id,
+        statusId: entity.id,
+        reason: latestSnapshot.reason,
+        status: latestSnapshot.status,
+        responsiblePerson: latestSnapshot.responsiblePerson,
+        responsiblePersonEmail: latestSnapshot.responsiblePersonEmail,
+        createdAt: latestSnapshot.createdAt,
+    } satisfies INovelStatusDto
 }
