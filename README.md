@@ -17,7 +17,7 @@ markdown에 관한 내용은 다음을 통해 확인할 수 있습니다.
   - Prisma Schema: [https://github.com/ktb-eatbook/eatbook-community/blob/master/prisma/schema.prisma](https://github.com/ktb-eatbook/eatbook-community/blob/master/prisma/schema.prisma)  
 
 
-[![Example Case](https://github.com/user-attachments/assets/aebdc9d3-bf50-4fe5-a39b-48dab47e9f5d)](https://github.com/ktb-eatbook/eatbook-community/blob/master/ERD.md)  
+[![Example Case](https://github.com/user-attachments/assets/7a51727d-90d6-49a7-b2f4-fce956099a8f)](https://github.com/ktb-eatbook/eatbook-community/blob/master/ERD.md)  
   
    
 
