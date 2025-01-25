@@ -48,11 +48,11 @@ export const NESTIA_CONFIG: INestiaConfig = {
     },
     servers: [
       {
-        url: "http://localhost:3000/docs",
+        url: "http://localhost:3000",
         description: "Community API (HTTP)"
       },
       {
-        url: "https://localhost:3000/docs",
+        url: "https://localhost:3000",
         description: "Community API (HTTPS)"
       },
     ]

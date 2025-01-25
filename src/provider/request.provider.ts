@@ -72,12 +72,12 @@ export namespace RequesterProvider {
         /**
          * 해당 함수로 생성된 requester는 sequence값이 항상 1을 초과합니다.
          */
-        export const update = async (
-            args: Prisma.requesterUpdateArgs,
+        export const upsert = async (
+            args: Prisma.requesterUpsertArgs,
             tx?: Omit<PrismaClient<Prisma.PrismaClientOptions, never, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$transaction" | "$use" | "$extends">,
         ): Promise<IRequesterEntity> => await (tx ?? PrismaService.client)
         .requester
-        .update({
+        .upsert({
             ...args,
             ...Entity.select(),
         })

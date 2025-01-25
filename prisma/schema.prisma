@@ -52,6 +52,8 @@ model novel {
   //----
   snapshots novelsnapshot[] @relation("NovelSnapshot")
   requesters requesterhistory[] @relation("RequesterHistory")
+
+  @@index([id, deletedAt], type: Brin)
 }
 
 /// 소설의 변경 이력을 기록하는 테이블 입니다.
@@ -93,8 +95,11 @@ model requester {
   //----
   /// PK
   ///
+  /// Eatbook App 사용자의 ID 값을 사용합니다.
+  /// Eatbook App과 형식을 맞추기 위하여 UUID를 사용합니다. 
+  ///
   /// @format CUID
-  id String @id @db.VarChar(30) @default(cuid())
+  id String @id @db.VarChar(38) @default(uuid())
 
   /// 소설 등록 요청자의 이메일 주소입니다.
   ///
@@ -132,8 +137,8 @@ model requesterhistory {
   
   /// 요청자와 연결되어 있는 식별자 입니다. {@link requester.id}
   ///
-  /// @format CUID
-  requesterId String @db.VarChar(30)
+  /// @format UUID
+  requesterId String @db.VarChar(38)
 
   /// 소설 등록 요청한 순서 입니다.
   /// 1값을 가진 등록자가 최초 소설 등록 요청한 사람입니다.

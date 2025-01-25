@@ -94,8 +94,8 @@ export class NovelStatusService {
 import { tags } from "typia"
 
 export interface INovelStatusDto {
+    id: string & tags.MaxLength<30>
     snapshotId: string & tags.MaxLength<30>
-    statusId: string & tags.MaxLength<30>
     reason: string & tags.MaxLength<300>
     status: NovelStatus
     responsiblePersonEmail: string & tags.Format<"email">
@@ -106,8 +106,8 @@ export interface INovelStatusDto {
 export const packedNovelStatusDto = (entity: INovelStatusEntity) => {
     const latestSnapshot = getLatestNovelStatus(entity)
     return {
+        id: entity.id,
         snapshotId: latestSnapshot.id,
-        statusId: entity.id,
         reason: latestSnapshot.reason,
         status: latestSnapshot.status,
         responsiblePerson: latestSnapshot.responsiblePerson,
