@@ -30,7 +30,8 @@ export class NovelController {
             )
             const responseObj: SuccessResponse<INovelDtoList> = {
                 data: result,
-                status: 200,
+                message: "",
+                statusCode: 200,
             }
 
             response.json(responseObj)
@@ -48,7 +49,8 @@ export class NovelController {
             const result = await this.novelService.getNovel(query.id)
             const responseObj: SuccessResponse<INovelDto> = {
                 data: result,
-                status: 200,
+                message: "",
+                statusCode: 200,
             }
 
             response.json(responseObj)
@@ -72,9 +74,10 @@ export class NovelController {
                 requesterName: body.requester.requesterName,
                 requesterId: body.requester.requesterId,
             })
-            const responseObj: SuccessResponse<IRegistResultDto> = {
+            const responseObj: SuccessResponse<IRegistResultDto | boolean> = {
                 data: result,
-                status: 201
+                message: "",
+                statusCode: 201
             }
 
             response.json(responseObj)
@@ -92,7 +95,8 @@ export class NovelController {
             const result = await this.novelService.deleteNovel(query.id)
             const responseObj: SuccessResponse<boolean> = {
                 data: result,
-                status: 200,
+                message: "",
+                statusCode: 200,
             }
 
             response.json(responseObj)
@@ -120,7 +124,7 @@ export namespace Body {
     }
 
     interface IRequesterInfoArgs {
-        requesterId: string & tags.MaxLength<30> | null
+        requesterId: string & tags.MaxLength<38>
         requesterEmail: string & tags.Format<"email">
         requesterName: string
     }

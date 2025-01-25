@@ -20,7 +20,7 @@ export namespace NovelProvider {
             return {
                 id: entity.id,
                 snapshots: entity.snapshots.map(snapshot => NovelSnapshotProvider.Entity.toJson(snapshot)),
-                requesters: entity.requesters.map(({ id, requesterId }) => ({ historyId: id, requesterId })),
+                requesters: entity.requesters.map(({ id, requesterId, sequence }) => ({ historyId: id, requesterId, sequence })),
                 createdAt: new Date(entity.createdAt),
                 deleteAt: entity.deletedAt ? new Date(entity.deletedAt) : null,
             } satisfies INovelEntity
@@ -32,6 +32,7 @@ export namespace NovelProvider {
                     select: {
                         id: true,
                         requesterId: true,
+                        sequence: true,
                     }
                 }
             }
@@ -65,6 +66,19 @@ export namespace NovelProvider {
         })
         .then(Entity.toJson)
         .catch((e) => { throw handleException(e) })
+
+        export const update = async (
+            args: Prisma.novelUpdateArgs,
+            tx?: Omit<PrismaClient<Prisma.PrismaClientOptions, never, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$transaction" | "$use" | "$extends">,
+        ) : Promise<INovelEntity> => await (tx ?? PrismaService.client)
+        .novel
+        .update({
+            ...args,
+            ...Entity.select(),
+        })
+        .then(Entity.toJson)
+        .catch((e) => { throw handleException(e) })
+
 
         /**
          * 최초 소설 등록 요청시에만 사용하도록 하고, 해당 함수로 생성된 requester의 sequence값은 항상 1입니다.

@@ -58,4 +58,5 @@ export class IPGuard implements CanActivate {
     }
 }
 
-const localIps = ["localhost","127.0.0.1"]
+/// 192.168.123.100 올릴 때 무적권 지우고 올리기
+const localIps = ["localhost","127.0.0.1","192.168.123.100"]

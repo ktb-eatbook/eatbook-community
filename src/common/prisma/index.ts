@@ -22,7 +22,7 @@ export class PrismaService {
      * @returns FailedResponse
      */
     public static handleException(e: Error): FailedResponse {
-        if("status" in e) {
+        if("statusCode" in e) {
             throw e
         } else if(e instanceof PrismaClientKnownRequestError) {
             this.printKnownRequestError(e)

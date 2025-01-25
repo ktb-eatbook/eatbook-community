@@ -1,5 +1,5 @@
 import { Controller, Res } from "@nestjs/common";
-import { TypedBody, TypedParam, TypedRoute } from "@nestia/core";
+import { TypedBody, TypedParam, TypedQuery, TypedRoute } from "@nestia/core";
 import { Response } from "express";
 import { tags } from "typia"
 
@@ -16,16 +16,17 @@ export class RequesterController {
         private readonly requesterService: RequesterService,
     ){}
 
-    @TypedRoute.Get("/:id")
+    @TypedRoute.Get()
     public async searchRequester(
-        @TypedParam("id") id: string & tags.MaxLength<30>,
+        @TypedQuery() query: Query.IGetHistoriesArgs,
         @Res() response: Response
     ) {
         try {
-            const result = await this.requesterService.searchRequester(id)
+            const result = await this.requesterService.searchRequester(query.id)
             const responseObj: SuccessResponse<IRequesterDto> = {
                 data: result,
-                status: 200,
+                message: "",
+                statusCode: 200,
             }
 
             response.json(responseObj)
@@ -48,7 +49,8 @@ export class RequesterController {
             })
             const responseObj: SuccessResponse<IRequesterDto> = {
                 data: result,
-                status: 200,
+                message: "",
+                statusCode: 200,
             }
 
             response.json(responseObj)
@@ -61,8 +63,14 @@ export class RequesterController {
 export namespace Body {
     export interface IRegistRequesterArgs{
         novelId: NovelUCICode
-        requesterId: string & tags.MaxLength<30> | null
+        requesterId: string & tags.MaxLength<38>
         email: string & tags.Format<"email">
         name: string
+    }
+}
+
+export namespace Query {
+    export interface IGetHistoriesArgs {
+        id: string & tags.MaxLength<38>
     }
 }

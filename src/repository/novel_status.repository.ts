@@ -34,4 +34,5 @@ export interface IAddNovelStatusSnapshotArgs {
     status: string
     responsiblePersonEmail: string
     responsiblePerson: string
+    requesterEmail: string
 }

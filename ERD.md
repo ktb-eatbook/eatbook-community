@@ -93,7 +93,11 @@ UCI를 PK로 사용하며, 해당 소설 등록 요청한 사용자들을 reques
 요청자의 요청 이력은 모두 history에 기록됩니다.
 
 **Properties**
-  - `id`: PK
+  - `id`
+    > PK
+    > 
+    > Eatbook App 사용자의 ID 값을 사용합니다.
+    > Eatbook App과 형식을 맞추기 위하여 UUID를 사용합니다. 
   - `email`: 소설 등록 요청자의 이메일 주소입니다.
   - `name`: 소설 요청자의 이름입니다.
 
