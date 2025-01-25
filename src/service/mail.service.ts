@@ -1,10 +1,11 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, Logger } from "@nestjs/common";
 import * as nodemailer from 'nodemailer';
 import * as fs from "fs"
 import * as path from "path"
 
 import { serverConfigs } from "../common";
 
+const logger: Logger = new Logger("MailService")
 const templetePath = path.join(__dirname, "../../../public/templete/")
 
 @Injectable()
@@ -35,9 +36,9 @@ export class MailService {
         to: serverConfigs.authEmail,
         html: this.getAlertTemplete(args)
       })
-      console.log('메일이 전송되었습니다')
+      logger.log('메일이 전송되었습니다')
     } catch (error) {
-      console.error('메일 전송 중 오류가 발생했습니다:', error)
+      logger.error('메일 전송 중 오류가 발생했습니다:', error)
     }
   }
 
@@ -49,9 +50,9 @@ export class MailService {
         to: args.responsiblePersonEmail,
         html: this.getRemindertTemplete(args)
       })
-      console.log('메일이 전송되었습니다')
+      logger.log('메일이 전송되었습니다')
     } catch (error) {
-      console.error('메일 전송 중 오류가 발생했습니다:', error)
+      logger.error('메일 전송 중 오류가 발생했습니다:', error)
     }
   }
 

@@ -12,7 +12,8 @@ export interface INovelEntity {
 
 export interface IRequesterIds {
     historyId: string & tags.MaxLength<30>
-    requesterId: string & tags.MaxLength<30>
+    requesterId: string & tags.MaxLength<38>
+    sequence: number & tags.Minimum<1>
 }
 
-export type NovelUCICode = string & tags.Pattern<"[A-Za-z0-9]{4}-[0-9]{8,11}">
+export type NovelUCICode = string & tags.Pattern<"^[A-Za-z0-9]{4}-[0-9]{8,11}$">

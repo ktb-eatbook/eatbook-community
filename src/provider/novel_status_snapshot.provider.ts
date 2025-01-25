@@ -7,7 +7,6 @@ import {
     NovelStatus, 
     INovelStatusSnapshotEntity 
 } from "./entity";
-import { DefaultArgs } from "@prisma/client/runtime/library";
 
 
 export namespace NovelStatusSnapshotProvider {

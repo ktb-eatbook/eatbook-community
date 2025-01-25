@@ -12,8 +12,14 @@ import {
     IRequesterIds,
     NovelUCICode 
 } from "../provider";
-import { INovelStatusDto, packedNovelStatusDto } from "./novel_status.service";
-import { getLatestNovelSnapshot, INovelSnapshotEntity } from "../provider/entity/novel_snapshot.entity";
+import { 
+    INovelStatusDto, 
+    packedNovelStatusDto 
+} from "./novel_status.service";
+import { 
+    getLatestNovelSnapshot, 
+    INovelSnapshotEntity 
+} from "../provider/entity/novel_snapshot.entity";
 
 const logger: Logger = new Logger("NovelService")
 
@@ -24,18 +30,24 @@ export class NovelService {
         private readonly novelRepository: NovelRepository,
     ){}
 
-    public async registerNovel(args: IRegisterNovelArgs): Promise<IRegistResultDto> {
+    public async registerNovel(args: IRegisterNovelArgs): Promise<IRegistResultDto | boolean> {
         const result = await this.novelRepository.registerNovel(args)
-        this.sendAlertEmail(
-            result,
-            args.requesterName,
-            args.requesterEmail,
-        )
-        /// 소설이 등록 요청이 성공하였음을 알리는 알림 로직 추가
-        return {
-            novel: packedNovelDtoOmitRequesters(result),
-            requesterId: result.requesters[0].requesterId,
-        } satisfies IRegistResultDto
+
+        if((result as INovelEntity).snapshots !== undefined) {
+            const novelEntity = result as INovelEntity
+            this.sendAlertEmail(
+                novelEntity,
+                args.requesterName,
+                args.requesterEmail,
+            )
+            /// 소설이 등록 요청이 성공하였음을 알리는 push 알림 로직 추가
+            return {
+                novel: packedNovelDtoOmitRequesters(novelEntity),
+                requesterId: novelEntity.requesters[0].requesterId,
+            } satisfies IRegistResultDto
+        } else {
+            return true
+        }
     }
 
     public async getNovelList(
@@ -105,12 +117,12 @@ import { tags } from "typia"
 
 export interface IRegistResultDto {
     novel: Omit<INovelDto, "requesters">
-    requesterId: string & tags.MaxLength<30>
+    requesterId: string & tags.MaxLength<38>
 }
 
 export interface INovelDto {
     id: NovelUCICode
-    novels: INovelSnapshotDto[]
+    novel: INovelSnapshotDto
     requesters: IRequesterIds[]
     createdAt: Date
     deletedAt: Date | null
@@ -125,7 +137,9 @@ export interface INovelSnapshotDto {
 export const packedNovelDto = (entity: INovelEntity) => {
     return {
         id: entity.id,
-        novels: entity.snapshots.map(snapshot => packedNovelSnapshotDto(snapshot)),
+        novel: packedNovelSnapshotDto(
+            getLatestNovelSnapshot(entity.snapshots)
+        ),
         requesters: entity.requesters,
         createdAt: entity.createdAt,
         deletedAt: entity.deleteAt,
@@ -135,7 +149,9 @@ export const packedNovelDto = (entity: INovelEntity) => {
 export const packedNovelDtoOmitRequesters = (entity: INovelEntity) => {
     return {
         id: entity.id,
-        novels: entity.snapshots.map(snapshot => packedNovelSnapshotDto(snapshot)),
+        novel: packedNovelSnapshotDto(
+            getLatestNovelSnapshot(entity.snapshots)
+        ),
         createdAt: entity.createdAt,
         deletedAt: entity.deleteAt,
     } satisfies Omit<INovelDto, "requesters">
@@ -159,8 +175,8 @@ export interface INovelDtoList {
 /// 추가된다면 옮겨질 코드
 /// ----
 export interface INovelInfoDto {
+    id: string & tags.MaxLength<30>
     snapshotId: string & tags.MaxLength<30>
-    infoId: string & tags.MaxLength<30>
     title: string & tags.MaxLength<200>
     description: string & tags.MaxLength<200>
     ref: string & tags.Format<"url">
@@ -171,7 +187,7 @@ export const packedNovelInfoDto = (entity: INovelInfoEntity) => {
     const latestInfo = getLatestNovelInfo(entity)
     return {    
         snapshotId: latestInfo.id,
-        infoId: entity.id,
+        id: entity.id,
         title: latestInfo.title,
         description: latestInfo.description,
         ref: latestInfo.ref,

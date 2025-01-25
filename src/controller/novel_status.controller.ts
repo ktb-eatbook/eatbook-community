@@ -22,10 +22,12 @@ export class NovelStatusController {
                 responsiblePersonEmail: body.responsiblePersonEmail,
                 status: body.status,
                 statusId: body.statusId,
+                requesterEmail: body.requesterEmail,
             })
             const responseObj: SuccessResponse<INovelStatusDto> = {
                 data: result,
-                status: 201,
+                message: "",
+                statusCode: 201,
             }
 
             response.json(responseObj)
@@ -45,5 +47,6 @@ export namespace Body {
         status: string
         responsiblePersonEmail: string & tags.Format<"email">
         responsiblePerson: string
+        requesterEmail: string & tags.Format<"email">
     }
 }
