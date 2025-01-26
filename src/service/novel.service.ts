@@ -42,7 +42,7 @@ export class NovelService {
             )
             /// 소설이 등록 요청이 성공하였음을 알리는 push 알림 로직 추가
             return {
-                novel: packedNovelDtoOmitRequesters(novelEntity),
+                novel: packedNovelDto(novelEntity),
                 requesterId: novelEntity.requesters[0].requesterId,
             } satisfies IRegistResultDto
         } else {
@@ -116,7 +116,7 @@ export class NovelService {
 import { tags } from "typia"
 
 export interface IRegistResultDto {
-    novel: Omit<INovelDto, "requesters">
+    novel: INovelDto
     requesterId: string & tags.MaxLength<38>
 }
 
@@ -146,16 +146,16 @@ export const packedNovelDto = (entity: INovelEntity) => {
     } satisfies INovelDto
 }
 
-export const packedNovelDtoOmitRequesters = (entity: INovelEntity) => {
-    return {
-        id: entity.id,
-        novel: packedNovelSnapshotDto(
-            getLatestNovelSnapshot(entity.snapshots)
-        ),
-        createdAt: entity.createdAt,
-        deletedAt: entity.deleteAt,
-    } satisfies Omit<INovelDto, "requesters">
-}
+// export const packedNovelDtoOmitRequesters = (entity: INovelEntity) => {
+//     return {
+//         id: entity.id,
+//         novel: packedNovelSnapshotDto(
+//             getLatestNovelSnapshot(entity.snapshots)
+//         ),
+//         createdAt: entity.createdAt,
+//         deletedAt: entity.deleteAt,
+//     } satisfies Omit<INovelDto, "requesters">
+// }
 
 export const packedNovelSnapshotDto = (entity: INovelSnapshotEntity) => {
     return {
