@@ -20,7 +20,7 @@ export class NovelController {
 
     @TypedRoute.Get("list")
     public async getNovelList(
-        @TypedQuery() query: QueryParam.IGetNovelList,
+        @TypedQuery() query: Query.IGetNovelList,
         @Res() response: Response
     ) {
         try {
@@ -42,7 +42,7 @@ export class NovelController {
 
     @TypedRoute.Get()
     public async getNovel(
-        @TypedQuery() query: QueryParam.IGetNovelById,
+        @TypedQuery() query: Query.IGetNovelById,
         @Res() response: Response,
     ) {
         try {
@@ -88,7 +88,7 @@ export class NovelController {
 
     @TypedRoute.Delete()
     public async deleteNovel(
-        @TypedQuery() query: QueryParam.IGetNovelById,
+        @TypedQuery() query: Query.IGetNovelById,
         @Res() response: Response,
     ) {
         try {
@@ -106,7 +106,7 @@ export class NovelController {
     }
 }
 
-export namespace QueryParam {
+export namespace Query {
     export interface IGetNovelById {
         id: NovelUCICode
     }
