@@ -30,7 +30,11 @@ export class NovelStatusService {
             assert<NovelStatus>(args.status)
             const result = await this.novelStatusRespository.addNovelStatusSnapshot(args)
 
-            this.sendReminderEmail(result)
+            this.sendReminderEmail(
+                result, 
+                args.status as NovelStatus, 
+                args.reason
+            )
             return packedNovelStatusDto(result)
         } catch(e) {
             if(e instanceof TypeGuardError) {
@@ -43,13 +47,21 @@ export class NovelStatusService {
     }
 
     /// * depreacated 에정
-    private async sendReminderEmail(novelStatus: INovelStatusEntity) {
+    private async sendReminderEmail(
+        novelStatus: INovelStatusEntity,
+        status: NovelStatus,
+        reason: string,
+    ) {
         try {
             const snapshots = this.deduplicatedSnapshots(novelStatus.snapshots)
             await Promise.all(
                 snapshots.map(
                     (snapshot) => this.mailService.sendReminderEmail(
-                        this.packedReminderEmailArgs(snapshot)
+                        this.packedReminderEmailArgs(
+                            snapshot,
+                            status,
+                            reason,
+                        )
                     )
                 )
             )
@@ -79,12 +91,14 @@ export class NovelStatusService {
 
     private packedReminderEmailArgs(
         snapshot: INovelStatusSnapshotEntity,
+        status: NovelStatus,
+        reason: string,
     ) {
         return {
-            reason: snapshot.reason,
+            reason,
             responsiblePerson: snapshot.responsiblePerson,
             responsiblePersonEmail: snapshot.responsiblePersonEmail,
-            status: snapshot.status,
+            status,
             createdAt: snapshot.createdAt,
         }
     }
