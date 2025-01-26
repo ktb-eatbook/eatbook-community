@@ -4,6 +4,7 @@ import * as fs from "fs"
 import * as path from "path"
 
 import { serverConfigs } from "../common";
+import { NovelStatus } from "../provider";
 
 const logger: Logger = new Logger("MailService")
 const templetePath = path.join(__dirname, "../../../public/templete/")
@@ -64,11 +65,23 @@ export class MailService {
   }
 
   private getRemindertTemplete(args: StatusMailArgs): string {
-    args['color'] = args.status === "confirm" ? "#1CBA3E" : args.status === "cancel" ? "#FD6830" : "#F9CAA6"
+    args['color'] = this.getColorFromStatus(args.status)
     return this.replaceTempleteArguments(
       this.reminderTemplete,
       args,
     )
+  }
+
+  private getColorFromStatus(status: NovelStatus) {
+    switch(status) {
+      case "pending":
+      case "reviewed":
+        return "#F9CAA6"
+      case "confirm":
+        return "#1CBA3E"
+      case "cancel":
+        return "#FD6830"
+    }
   }
 
   private replaceTempleteArguments(
@@ -84,7 +97,6 @@ export class MailService {
 }
 
 import { tags } from "typia"
-import { NovelStatus } from "../provider";
 
 export interface MailArgs {}
 
