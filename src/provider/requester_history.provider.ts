@@ -16,6 +16,7 @@ export namespace RequesterHistoryProvider {
             novelId: entity.novelId,
             novelSnapshots: entity.novel.snapshots.map(snapshot => NovelSnapshotProvider.Entity.toJson(snapshot)),
             requesterId: entity.requesterId,
+            interestCount: entity.novel.requesters.length,
             sequence: entity.sequence,
             createdAt: new Date(entity.createdAt),
         } satisfies IRequesterHistoryEntity)

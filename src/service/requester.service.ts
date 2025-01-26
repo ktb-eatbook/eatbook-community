@@ -53,6 +53,7 @@ export interface IRequesterHistoryDto {
     id: string & tags.MaxLength<30>
     novelId: NovelUCICode
     novelSnapshot: INovelSnapshotDto
+    favorites: number
     sequence: number & tags.Minimum<1>
     createdAt: Date
 }
@@ -64,6 +65,7 @@ export const packedRequesterHistoryDto = (entity: IRequesterHistoryEntity) => {
         novelSnapshot: packedNovelSnapshotDto(
             getLatestNovelSnapshot(entity.novelSnapshots)
         ),
+        favorites: entity.interestCount,
         sequence: entity.sequence,
         createdAt: entity.createdAt,
     } satisfies IRequesterHistoryDto

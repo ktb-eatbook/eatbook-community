@@ -1,5 +1,5 @@
 import { Controller, Res } from "@nestjs/common";
-import { TypedBody, TypedParam, TypedQuery, TypedRoute } from "@nestia/core";
+import { TypedBody, TypedQuery, TypedRoute } from "@nestia/core";
 import { Response } from "express";
 import { tags } from "typia"
 

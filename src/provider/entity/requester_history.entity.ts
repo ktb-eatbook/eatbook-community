@@ -8,6 +8,7 @@ export interface IRequesterHistoryEntity {
     novelId: NovelUCICode,
     novelSnapshots: INovelSnapshotEntity[]
     requesterId: string & tags.MaxLength<38>
+    interestCount: number
     sequence: number & tags.Minimum<1>
     createdAt: Date
 }
