@@ -34,6 +34,18 @@ export namespace NovelStatusProvider {
         /// ------
         /// Query
         /// ------
+        export const findUnique = async (
+            args: Prisma.novelstatusFindUniqueArgs,
+            tx?: Omit<PrismaClient<Prisma.PrismaClientOptions, never, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$transaction" | "$use" | "$extends">,
+        ): Promise<INovelStatusEntity | null> => await (tx ?? PrismaService.client)
+        .novelstatus
+        .findUnique({
+            ...args,
+            ...Entity.select(),
+        })
+        .then(Entity.toJson)
+        .catch((e) => { throw handleException(e) })
+        
         export const update = async (
             args: Prisma.novelstatusUpdateArgs,
             tx?: Omit<PrismaClient<Prisma.PrismaClientOptions, never, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$transaction" | "$use" | "$extends">,
