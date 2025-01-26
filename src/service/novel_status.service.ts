@@ -29,7 +29,6 @@ export class NovelStatusService {
         try {
             assert<NovelStatus>(args.status)
             const result = await this.novelStatusRespository.addNovelStatusSnapshot(args)
-            if(!result) throw ERROR.NotFoundData
 
             this.sendReminderEmail(result)
             return packedNovelStatusDto(result)
