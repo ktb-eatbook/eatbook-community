@@ -281,7 +281,7 @@ model novelstatussnapshot {
   /// 소설 등록 요청 처리를 한 담당자의 이메일 주소입니다.
   ///
   /// @format email
-  responsiblePersonEmail String @db.VarChar @default("eatbook@gmail.com")
+  responsiblePersonEmail String @db.VarChar @default("eatbook6@gmail.com")
 
   /// 소설 등록 요청 처리를 한 담당자의 이름입니다.
   responsiblePerson String @db.VarChar @default("eatbook")

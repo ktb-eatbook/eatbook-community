@@ -1,98 +1,29 @@
-import { Injectable, Logger } from "@nestjs/common";
-import * as nodemailer from 'nodemailer';
-import * as fs from "fs"
-import * as path from "path"
+import { Injectable } from "@nestjs/common";
 
 import { serverConfigs } from "../common";
 import { NovelStatus } from "../provider";
 
-const logger: Logger = new Logger("MailService")
-const templetePath = path.join(__dirname, "../../../public/templete/")
+const notifyServerUrl = serverConfigs.mailServerUrl
 
 @Injectable()
 export class MailService {
-  private readonly transporter: nodemailer.Transporter
-  private readonly alertTemplete: string
-  private readonly reminderTemplete: string
-
-  constructor(){
-      this.transporter = nodemailer.createTransport({
-          host: serverConfigs.host,
-          port: 587,
-          secure: false,
-          auth: {
-            user: serverConfigs.authUser,
-            pass: serverConfigs.authEmailPass,
-          }
-      })
-      this.alertTemplete = fs.readFileSync(templetePath + "alert_templete.html", 'utf8')
-      this.reminderTemplete = fs.readFileSync(templetePath + "reminder_templete.html", 'utf-8')
+  public sendAlertEmail(args: AlertMailArgs): void {
+    this.sendEmail("alert", args)
   }
 
-  public async sendAlertEmail(args: AlertMailArgs): Promise<void> {
-    try {
-      await this.transporter.sendMail({
-        from: serverConfigs.managerEmail, 
-        subject: "새로운 소설 등록 요청이 도착했습니다",
-        to: serverConfigs.managerEmail,
-        html: this.getAlertTemplete(args)
-      })
-      logger.log('메일이 전송되었습니다')
-    } catch (error) {
-      logger.error('메일 전송 중 오류가 발생했습니다:', error)
-    }
+  public sendReminderEmail(args: StatusMailArgs): void {
+    this.sendEmail("reminder", args)
   }
 
-  public async sendReminderEmail(args: StatusMailArgs): Promise<void> {
-    try {
-      await this.transporter.sendMail({
-        from: serverConfigs.managerEmail, 
-        subject: "소설 등록 요청 결과 리마인드 메일입니다",
-        to: args.responsiblePersonEmail,
-        html: this.getRemindertTemplete(args)
-      })
-      logger.log('메일이 전송되었습니다')
-    } catch (error) {
-      logger.error('메일 전송 중 오류가 발생했습니다:', error)
-    }
-  }
-
-  private getAlertTemplete(args: AlertMailArgs): string {
-    return this.replaceTempleteArguments(
-      this.alertTemplete,
-      args,
-    )
-  }
-
-  private getRemindertTemplete(args: StatusMailArgs): string {
-    args['color'] = this.getColorFromStatus(args.status)
-    return this.replaceTempleteArguments(
-      this.reminderTemplete,
-      args,
-    )
-  }
-
-  private getColorFromStatus(status: NovelStatus) {
-    switch(status) {
-      case "pending":
-      case "reviewed":
-        return "#F9CAA6"
-      case "confirm":
-        return "#1CBA3E"
-      case "cancel":
-        return "#FD6830"
-    }
-  }
-
-  private replaceTempleteArguments(
-    templete: string,
-    args: MailArgs
-  ): string {
-    const keys = Object.keys(args)
-    for(let i=0; i<keys.length; ++i) {
-      templete = templete.replaceAll(`{${keys[i]}}`, `${args[keys[i]]}`)
-    }
-    return templete
+  private async sendEmail(target: "reminder" | "alert", args: MailArgs): Promise<void> {
+    const url = `${notifyServerUrl}/mail/${target}`
+    await fetch(url, {
+      method: "POST",
+      body: JSON.stringify(args),
+      headers: {
+        "Content-Type": "application/json"
+      }
+    })
   }
 }
 
@@ -112,6 +43,7 @@ export interface AlertMailArgs extends MailArgs {
 export interface StatusMailArgs extends MailArgs {
   responsiblePerson: string
   responsiblePersonEmail: string & tags.Format<"email">
+  toEmails: Array<string & tags.Format<"email">>
   status: NovelStatus
   reason: string & tags.MaxLength<300>
   createdAt: Date

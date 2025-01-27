@@ -81,19 +81,13 @@ export class NovelService {
         requesterName: string,
         requesterEmail: string & tags.Format<"email">
     ) {
-        try {
-            await this.mailService.sendAlertEmail(
-                this.packedAlertEmailArgs(
-                    novel,
-                    requesterName,
-                    requesterEmail,
-                )
+        this.mailService.sendAlertEmail(
+            this.packedAlertEmailArgs(
+                novel,
+                requesterName,
+                requesterEmail,
             )
-        } catch(e) {
-            logger.error("소설 등록 알림 메일 송신 실패")
-            logger.error(`Reason: ${e}`)
-            return
-        }
+        )
     }
 
     private packedAlertEmailArgs(
