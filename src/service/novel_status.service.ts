@@ -30,11 +30,7 @@ export class NovelStatusService {
             assert<NovelStatus>(args.status)
             const result = await this.novelStatusRespository.addNovelStatusSnapshot(args)
 
-            this.sendReminderEmail(
-                result, 
-                args.status as NovelStatus, 
-                args.reason
-            )
+            this.sendReminderEmail(result)
             return packedNovelStatusDto(result)
         } catch(e) {
             if(e instanceof TypeGuardError) {
@@ -46,31 +42,19 @@ export class NovelStatusService {
         }
     }
 
-    /// * depreacated 에정
-    private async sendReminderEmail(
-        novelStatus: INovelStatusEntity,
-        status: NovelStatus,
-        reason: string,
-    ) {
-        try {
-            const snapshots = this.deduplicatedSnapshots(novelStatus.snapshots)
-            await Promise.all(
-                snapshots.map(
-                    (snapshot) => this.mailService.sendReminderEmail(
-                        this.packedReminderEmailArgs(
-                            snapshot,
-                            status,
-                            reason,
-                        )
-                    )
-                )
-            )
-            return
-        } catch(e) {
-            logger.error("소설 등록 상태 변경 알림 메일 송신 실패")
-            logger.error(`Reason: ${e}`)
-            return
-        }
+    private async sendReminderEmail(novelStatus: INovelStatusEntity,) {
+        const snapshots = this.deduplicatedSnapshots(novelStatus.snapshots)
+        const latestSnapshot = getLatestNovelStatus(novelStatus)
+        const toEmails = snapshots.map((snapshot) => snapshot.responsiblePersonEmail)
+
+        this.mailService.sendReminderEmail({
+            reason: latestSnapshot.reason,
+            responsiblePerson: latestSnapshot.responsiblePerson,
+            responsiblePersonEmail: latestSnapshot.responsiblePersonEmail,
+            status: latestSnapshot.status,
+            toEmails,
+            createdAt: latestSnapshot.createdAt
+        })
     }
     
     private deduplicatedSnapshots(
@@ -87,20 +71,6 @@ export class NovelStatusService {
             }
         }
         return result
-    }
-
-    private packedReminderEmailArgs(
-        snapshot: INovelStatusSnapshotEntity,
-        status: NovelStatus,
-        reason: string,
-    ) {
-        return {
-            reason,
-            responsiblePerson: snapshot.responsiblePerson,
-            responsiblePersonEmail: snapshot.responsiblePersonEmail,
-            status,
-            createdAt: snapshot.createdAt,
-        }
     }
 }
 
