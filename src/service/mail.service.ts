@@ -32,9 +32,9 @@ export class MailService {
   public async sendAlertEmail(args: AlertMailArgs): Promise<void> {
     try {
       await this.transporter.sendMail({
-        from: serverConfigs.authEmail, 
+        from: serverConfigs.managerEmail, 
         subject: "새로운 소설 등록 요청이 도착했습니다",
-        to: serverConfigs.authEmail,
+        to: serverConfigs.managerEmail,
         html: this.getAlertTemplete(args)
       })
       logger.log('메일이 전송되었습니다')
@@ -46,7 +46,7 @@ export class MailService {
   public async sendReminderEmail(args: StatusMailArgs): Promise<void> {
     try {
       await this.transporter.sendMail({
-        from: serverConfigs.authEmail, 
+        from: serverConfigs.managerEmail, 
         subject: "소설 등록 요청 결과 리마인드 메일입니다",
         to: args.responsiblePersonEmail,
         html: this.getRemindertTemplete(args)
