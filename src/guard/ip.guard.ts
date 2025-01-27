@@ -9,7 +9,7 @@ import {
 import { Request } from "express"
 import * as geoip from 'geoip-lite';
 
-import { ERROR } from "../common";
+import { ERROR, serverConfigs } from "../common";
 
 const logger: Logger = new Logger("IPGUARD")
 
@@ -59,4 +59,4 @@ export class IPGuard implements CanActivate {
 }
 
 /// 192.168.123.100 올릴 때 무적권 지우고 올리기
-const localIps = ["localhost","127.0.0.1","192.168.123.100"]
+const localIps = ["localhost","127.0.0.1", serverConfigs.localhost]

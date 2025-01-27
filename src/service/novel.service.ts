@@ -30,6 +30,8 @@ export class NovelService {
         private readonly novelRepository: NovelRepository,
     ){}
 
+    /// 소설 등록에 성공할 경우 IRegistResultDto를 반환
+    /// 이미 존재하는 소설을 등록할 경우 boolean을 반환
     public async registerNovel(args: IRegisterNovelArgs): Promise<IRegistResultDto | boolean> {
         const result = await this.novelRepository.registerNovel(args)
 
