@@ -2,7 +2,11 @@ import { Controller, Res } from "@nestjs/common";
 import { TypedBody, TypedRoute } from "@nestia/core";
 import { Response } from "express";
 
-import { INovelStatusDto, NovelStatusService } from "../service/novel_status.service";
+import { SuccessResponse } from "../common";
+import { 
+    INovelStatusDto, 
+    NovelStatusService 
+} from "../service/novel_status.service";
 
 @Controller("novel/status")
 export class NovelStatusController {
@@ -10,7 +14,7 @@ export class NovelStatusController {
         private readonly novelStatusService: NovelStatusService,
     ){}
 
-    @TypedRoute.Post()
+    @TypedRoute.Patch()
     public async updateReviewStatus(
         @TypedBody() body: Body.IUpdateReviewStatusArgs,
         @Res() response: Response,
@@ -38,7 +42,6 @@ export class NovelStatusController {
 }
 
 import { tags } from "typia"
-import { SuccessResponse } from "../common";
 
 export namespace Body {
     export interface IUpdateReviewStatusArgs {

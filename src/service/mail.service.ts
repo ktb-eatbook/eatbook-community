@@ -15,8 +15,8 @@ export class MailService {
     this.sendEmail("reminder", args)
   }
 
-  private async sendEmail(target: "reminder" | "alert", args: MailArgs): Promise<void> {
-    const url = `${notifyServerUrl}/mail/${target}`
+  private async sendEmail(type: EmailType, args: MailArgs): Promise<void> {
+    const url = `${notifyServerUrl}/mail/${type}`
     await fetch(url, {
       method: "POST",
       body: JSON.stringify(args),
@@ -48,3 +48,5 @@ export interface StatusMailArgs extends MailArgs {
   reason: string & tags.MaxLength<300>
   createdAt: Date
 }
+
+export type EmailType = "reminder" | "alert"
