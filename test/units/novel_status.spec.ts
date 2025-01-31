@@ -95,7 +95,7 @@ describe("소설 상태 변경 모듈 테스트", () => {
         expect(novelStatusRepository).toBeDefined()
     })
     
-    test("NovelStatusService의 assert가 호출 되고 정상 작동하는가", async () => {
+    test("NovelStatusService의 assert가 호출 되고 내부 동작이 정상 작동하는가", async () => {
         const date = new Date(2025, 1, 31)
 
         jest.spyOn(novelStatusService, "updateReviewStatus")
