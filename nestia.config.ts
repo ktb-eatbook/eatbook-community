@@ -63,7 +63,7 @@ export const NESTIA_CONFIG: INestiaConfig = {
    *
    * If not configured, you can't build the SDK library.
    */
-  output: "src/api",
+  output: "./sdk",
 
   /**
    * Target directory that SDK distribution files would be placed in.
