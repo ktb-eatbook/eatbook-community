@@ -9,7 +9,7 @@ import {
 import { Request } from "express"
 import * as geoip from 'geoip-lite';
 
-import { ERROR, serverConfigs } from "../common";
+import { allowIps, ERROR } from "../common";
 
 const logger: Logger = new Logger("IPGUARD")
 
@@ -31,18 +31,16 @@ export class IPGuard implements CanActivate {
         }
         
         const method = request.method
-        // 앱, 웹의 요청은 GET, POST 만 허용
+        // PUT 요청은 거부
         switch(method) {
-            case "DELETE":
-            case "PATCH":
             case "PUT":
                 logger.warn(`허용되지 않은 메소드 요청\n아이피: ${clientIp}\n메소드: ${method}`)
                 const message = ERROR.Forbidden.message
                 throw new HttpException(message, HttpStatus.FORBIDDEN)
         }
 
-        // 로컬 접근 허용
-        if(localIps.includes(clientIp)) {
+        // whitelist에 등록 된 IP는 bypass
+        if(allowIps.includes(clientIp)) {
             return true
         }
 
@@ -57,6 +55,3 @@ export class IPGuard implements CanActivate {
         }
     }
 }
-
-/// 192.168.123.100 올릴 때 무적권 지우고 올리기
-const localIps = ["localhost","127.0.0.1", serverConfigs.localhost]
