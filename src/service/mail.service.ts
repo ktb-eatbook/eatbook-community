@@ -1,9 +1,10 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, Logger } from "@nestjs/common";
 
 import { serverConfigs } from "../common";
 import { NovelStatus } from "../provider";
 
 const notifyServerUrl = serverConfigs.mailServerUrl
+const logger: Logger = new Logger("MailService")
 
 @Injectable()
 export class MailService {
@@ -23,6 +24,10 @@ export class MailService {
       headers: {
         "Content-Type": "application/json"
       }
+    })
+    .catch(e => {
+      logger.error("메일 전송 요청에 실패했습니다")
+      logger.error(`Reason: ${e}`)
     })
   }
 }
