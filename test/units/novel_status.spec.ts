@@ -6,6 +6,20 @@ jest.mock("../../src/common/config", () => ({
     allowIps: ["localhost", "127.0.0.1"]
 }))
 
+jest.mock("../../src/provider/novel_status.provider.ts", () => {
+    const origin = jest.requireActual("../../src/provider/novel_status.provider.ts")
+    return {
+        NovelStatusProvider: {
+            handleException: origin.NovelStatusProvider.handleException,
+            Entity: {
+                ...origin.NovelStatusProvider.Entity,
+                findUnique: jest.fn(),
+                update: jest.fn()
+            }
+        }
+    }
+})
+
 import { INestApplication } from "@nestjs/common"
 import { Test, TestingModule } from "@nestjs/testing"
 
@@ -13,6 +27,8 @@ import { NovelStatusModule } from "../../src/module/novel_status.module"
 import { MailService } from "../../src/service/mail.service"
 import { NovelStatusService } from "../../src/service/novel_status.service"
 import { NovelStatusRepository } from "../../src/repository/novel_status.repository"
+import { ERROR } from "../../src/common"
+import { INovelStatusEntity, NovelStatusProvider } from "../../src/provider"
 
 import * as dotenv from "dotenv"
 
@@ -20,8 +36,8 @@ dotenv.config()
 
 const testData = {
     "statusId": "cm6kp90yt0004ut5ox5lvvyfl",
-    "reason": "담당자 확인",
-    "status": "reviewed",
+    "reason": "미확인",
+    "status": "pending",
     "responsiblePersonEmail": "tester@gmail.com",
     "responsiblePerson": "테스터",
     "requesterEmail": "tester@gmail.com"
@@ -86,7 +102,7 @@ describe("소설 상태 변경 모듈 테스트", () => {
         await app.init()
     })
 
-    beforeEach(() => {
+    afterEach(() => {
         jest.clearAllMocks()
     })
 
@@ -150,7 +166,7 @@ describe("소설 상태 변경 모듈 테스트", () => {
             "snapshotId": "cm6ets2ih0001utu0whpyzwqf",
             "reason": "담당자 확인",
             "status": "reviewed",
-            "responsiblePerson": "한강민",
+            "responsiblePerson": "테스터",
             "responsiblePersonEmail": "tester@gmail.com",
             "createdAt": date,
         })
@@ -166,7 +182,54 @@ describe("소설 상태 변경 모듈 테스트", () => {
         })
     })
     
-    test.todo("Prisma 트랜잭션 내부에서 기존의 상태와 변경하려는 상태를 비교하고 처리하는가")
+    test("Prisma 트랜잭션 내부에서 기존의 상태와 변경하려는 상태를 비교하고 처리하는가", async () => {
+        const date = new Date(Date.now())
+        const findUniqueExpectedResult: INovelStatusEntity = {
+            id: "cm6kp90yt0004ut5ox5lvvyfl",
+            snapshots: [{
+                id: "cm6ets2ih0001utu0whpyzwqf",
+                reason: "미확인",
+                status: "pending",
+                responsiblePersonEmail: testData.responsiblePersonEmail,
+                responsiblePerson: testData.responsiblePerson,
+                createdAt: date,
+            }],
+            createdAt: date,
+        }
+
+        // const repoSpy = jest.spyOn(novelStatusRepository, "addNovelStatusSnapshot")
+        jest
+        .spyOn(NovelStatusProvider.Entity, "findUnique")
+        .mockResolvedValue(findUniqueExpectedResult)
+
+        const updateExpectedResult: INovelStatusEntity = {
+            id: "cm6kp90yt0004ut5ox5lvvyfl",
+            snapshots: [{
+                id: "cm6ets2ih0001utu0whpyzwqf",
+                reason: "담당자 확인",
+                status: "reviewed",
+                responsiblePersonEmail: testData.responsiblePersonEmail,
+                responsiblePerson: testData.responsiblePerson,
+                createdAt: date,
+            }],
+            createdAt: date,
+        }
+
+        jest
+        .spyOn(NovelStatusProvider.Entity, "update")
+        .mockResolvedValue(updateExpectedResult)
+
+        await expect(novelStatusRepository.addNovelStatusSnapshot({
+            statusId: testData.statusId,
+            status: "reviewed",
+            reason: "담당자 확인",
+            requesterEmail: testData.requesterEmail,
+            responsiblePerson: testData.responsiblePerson,
+            responsiblePersonEmail: testData.responsiblePersonEmail,
+        }))
+        .rejects
+        .toMatchObject(ERROR.NotFoundData)
+    })
 
     test.todo("반환되는 Dto의 데이터가 가장 최근에 생성된 snapshot 데이터가 맞는가")
 })
