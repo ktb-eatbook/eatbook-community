@@ -18,7 +18,7 @@ export class NovelController {
         private readonly novelService: NovelService,
     ){}
 
-    @TypedRoute.Get("list")
+    @TypedRoute.Post("list")
     public async getNovelList(
         @TypedQuery() query: Query.IGetNovelList,
         @Res() response: Response
@@ -33,14 +33,14 @@ export class NovelController {
                 message: "",
                 statusCode: 200,
             }
-
+            
             response.json(responseObj)
         } catch(e) {
             response.json(e)
         }
     }
 
-    @TypedRoute.Get()
+    @TypedRoute.Post()
     public async getNovel(
         @TypedQuery() query: Query.IGetNovelById,
         @Res() response: Response,

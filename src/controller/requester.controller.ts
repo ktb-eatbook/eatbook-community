@@ -16,7 +16,7 @@ export class RequesterController {
         private readonly requesterService: RequesterService,
     ){}
 
-    @TypedRoute.Get()
+    @TypedRoute.Post()
     public async searchRequester(
         @TypedQuery() query: Query.IGetHistoriesArgs,
         @Res() response: Response
