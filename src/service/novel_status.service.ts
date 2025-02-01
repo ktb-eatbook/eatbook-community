@@ -27,7 +27,7 @@ export class NovelStatusService {
     /// 모든 상태에 대한 추적이 필요는 하지만 읽을 때 마다 reviewed일 필요는 없기 때문
     public async updateReviewStatus(args: IAddNovelStatusSnapshotArgs): Promise<INovelStatusDto> {
         try {
-            assert<NovelStatus>(args.status)
+            this.assertNovelStatus(args.status)
             const result = await this.novelStatusRespository.addNovelStatusSnapshot(args)
 
             this.sendReminderEmail(result)
@@ -40,6 +40,10 @@ export class NovelStatusService {
             }
             throw e
         }
+    }
+
+    private assertNovelStatus(status: string) {
+        return assert<NovelStatus>(status)
     }
 
     private async sendReminderEmail(novelStatus: INovelStatusEntity,) {

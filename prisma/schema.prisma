@@ -6,6 +6,7 @@
 
 generator client {
   provider = "prisma-client-js"
+  binaryTargets = ["windows", "darwin", "debian-openssl-1.1.x", "debian-openssl-3.0.x"] // 윈도우, 맥, 우분투 20.04, 우분투 22.04
 }
 
 datasource db {
