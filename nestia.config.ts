@@ -1,4 +1,5 @@
 import { INestiaConfig } from "@nestia/sdk";
+import { serverConfigs } from "src/common";
 
 export const NESTIA_CONFIG: INestiaConfig = {
   /**
@@ -48,12 +49,8 @@ export const NESTIA_CONFIG: INestiaConfig = {
     },
     servers: [
       {
-        url: "http://localhost:3000",
-        description: "Community API (HTTP)"
-      },
-      {
-        url: "https://localhost:3000",
-        description: "Community API (HTTPS)"
+        url: serverConfigs.serverUrl!,
+        description: "Community API"
       },
     ]
   },
