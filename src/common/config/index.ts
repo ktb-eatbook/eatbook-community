@@ -3,6 +3,7 @@ dotenv.config()
 
 export const serverConfigs = {
     serverPort: process.env.SERVER_PORT,
+    serverUrl: process.env.SERVER_IP,
     mailServerUrl: process.env.NOTIFY_SERVER_URL,
 }
 
