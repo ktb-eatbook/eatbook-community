@@ -12,7 +12,6 @@ import { ERROR } from "../common";
 export class NovelStatusRepository {
     public async addNovelStatusSnapshot(args: IAddNovelStatusSnapshotArgs): Promise<INovelStatusEntity> {
         return await PrismaService.client.$transaction(async tx => {
-            console.log(args)
             const novelStatus = await NovelStatusProvider
             .Entity
             .findUnique({

@@ -3,7 +3,6 @@ import {
     ExecutionContext, 
     HttpException, 
     HttpStatus, 
-    Injectable, 
     Logger
 } from "@nestjs/common";
 import { Request } from "express"
@@ -13,10 +12,9 @@ import { allowIps, ERROR } from "../common";
 
 const logger: Logger = new Logger("IPGUARD")
 
-@Injectable()
 export class IPGuard implements CanActivate {
     canActivate(context: ExecutionContext): boolean {
-        const request = context.switchToHttp().getRequest<Request>();
+        const request = context.switchToHttp().getRequest<Request>()
         
         // 공유기 접근 시, 실제 아이피 식별을 위한 헤더 추출
         const forwardedFor = request.headers['x-forwarded-for']
