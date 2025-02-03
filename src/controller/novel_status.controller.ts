@@ -1,4 +1,4 @@
-import { Controller, Res } from "@nestjs/common";
+import { Controller, Res, UseGuards } from "@nestjs/common";
 import { TypedBody, TypedRoute } from "@nestia/core";
 import { Response } from "express";
 
@@ -7,14 +7,16 @@ import {
     INovelStatusDto, 
     NovelStatusService 
 } from "../service/novel_status.service";
+import { RoleGuard } from "../guard/role.guard";
 
 @Controller("novel/status")
 export class NovelStatusController {
     constructor(
         private readonly novelStatusService: NovelStatusService,
     ){}
-
+    
     @TypedRoute.Patch()
+    @UseGuards(new RoleGuard(["ADMIN"]))
     public async updateReviewStatus(
         @TypedBody() body: Body.IUpdateReviewStatusArgs,
         @Res() response: Response,

@@ -32,7 +32,7 @@ export class NovelService {
 
     /// 소설 등록에 성공할 경우 IRegistResultDto를 반환
     /// 이미 존재하는 소설을 등록할 경우 boolean을 반환
-    public async registerNovel(args: IRegisterNovelArgs): Promise<IRegistResultDto | boolean> {
+    public async registerNovel(args: IRegisterNovelArgs): Promise<IRegistResultDto | void> {
         const result = await this.novelRepository.registerNovel(args)
 
         if((result as INovelEntity).snapshots !== undefined) {
@@ -47,8 +47,6 @@ export class NovelService {
                 novel: packedNovelDto(novelEntity),
                 requesterId: novelEntity.requesters[0].requesterId,
             } satisfies IRegistResultDto
-        } else {
-            return true
         }
     }
 

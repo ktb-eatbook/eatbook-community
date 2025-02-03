@@ -5,6 +5,7 @@ export const serverConfigs = {
     serverPort: process.env.SERVER_PORT,
     serverUrl: process.env.SERVER_IP,
     mailServerUrl: process.env.NOTIFY_SERVER_URL,
+    bookKeeperUrl: process.env.BOOK_KEEPER_URL,
 }
 
 import * as fs from "fs"

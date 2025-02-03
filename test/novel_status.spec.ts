@@ -1,38 +1,28 @@
-jest.mock("../../src/common/config", () => ({
+import { INestApplication } from "@nestjs/common"
+import { Test, TestingModule } from "@nestjs/testing"
+
+import { NovelStatusModule } from "../src/module/novel_status.module"
+import { MailService } from "../src/service/mail.service"
+import { NovelStatusService } from "../src/service/novel_status.service"
+import { NovelStatusRepository } from "../src/repository/novel_status.repository"
+import { ERROR } from "../src/common"
+import { 
+    INovelStatusEntity, 
+    INovelStatusSnapshotEntity, 
+    NovelStatusProvider 
+} from "../src/provider"
+
+import * as dotenv from "dotenv"
+
+dotenv.config()
+
+jest.mock("../src/common/config", () => ({
     serverConfigs: {
         serverPort: process.env.SERVER_PORT,
         mailServerUrl: process.env.NOTIFY_SERVER_URL,
     },
     allowIps: ["localhost", "127.0.0.1"]
 }))
-
-jest.mock("../../src/provider/novel_status.provider.ts", () => {
-    const origin = jest.requireActual("../../src/provider/novel_status.provider.ts")
-    return {
-        NovelStatusProvider: {
-            handleException: origin.NovelStatusProvider.handleException,
-            Entity: {
-                ...origin.NovelStatusProvider.Entity,
-                findUnique: jest.fn(),
-                update: jest.fn()
-            }
-        }
-    }
-})
-
-import { INestApplication } from "@nestjs/common"
-import { Test, TestingModule } from "@nestjs/testing"
-
-import { NovelStatusModule } from "../../src/module/novel_status.module"
-import { MailService } from "../../src/service/mail.service"
-import { NovelStatusService } from "../../src/service/novel_status.service"
-import { NovelStatusRepository } from "../../src/repository/novel_status.repository"
-import { ERROR } from "../../src/common"
-import { INovelStatusEntity, NovelStatusProvider } from "../../src/provider"
-
-import * as dotenv from "dotenv"
-
-dotenv.config()
 
 const testData = {
     "statusId": "cm6kp90yt0004ut5ox5lvvyfl",
@@ -43,7 +33,7 @@ const testData = {
     "requesterEmail": "tester@gmail.com"
 }
 
-const mockStatusSnapshotDB = [
+const mockStatusSnapshots: INovelStatusSnapshotEntity[] = [
     {
         id: "cm6khdck90004tskc83l8sp80",
         reason: "미확인",
@@ -74,6 +64,7 @@ describe("소설 상태 변경 모듈 테스트", () => {
     let app: INestApplication
     let novelStatusService: NovelStatusService
     let novelStatusRepository: NovelStatusRepository
+    let mailService: MailService
 
     beforeAll(async () => {
         /// 모듈 initialize
@@ -81,12 +72,7 @@ describe("소설 상태 변경 모듈 테스트", () => {
             imports: [NovelStatusModule],
             providers: [
                 NovelStatusService,
-                {
-                    provide: NovelStatusRepository,
-                    useValue: {
-                        addNovelStatusSnapshot: jest.fn(),
-                    }
-                },
+                NovelStatusRepository,
                 {
                     provide: MailService,
                     useValue: {
@@ -99,40 +85,43 @@ describe("소설 상태 변경 모듈 테스트", () => {
         app = module.createNestApplication()
         novelStatusService = app.get<NovelStatusService>(NovelStatusService)
         novelStatusRepository = app.get<NovelStatusRepository>(NovelStatusRepository)
+        mailService = app.get<MailService>(MailService)
         await app.init()
     })
 
     afterEach(() => {
-        jest.clearAllMocks()
+        jest.restoreAllMocks()
     })
 
-    test("테스트를 위한 준비 테스트", () => {
+    test("종속성 모듈 로드", () => {
         expect(novelStatusService).toBeDefined()
         expect(novelStatusRepository).toBeDefined()
+        expect(mailService).toBeDefined()
     })
     
-    test("NovelStatusService의 assert가 호출 되고 내부 동작이 정상 작동하는가", async () => {
+    test("NovelStatusService의 assert가 호출 되고 가장 최근 데이터를 반환하는가", async () => {
         const date = new Date(2025, 1, 31)
+        mockStatusSnapshots.push({
+            id: "cm6ets2ih0001utu0whpyzwqf",
+            reason: "담당자 확인",
+            status: "reviewed",
+            responsiblePersonEmail: testData.responsiblePersonEmail,
+            responsiblePerson: testData.responsiblePerson,
+            createdAt: date,
+        })
 
         jest.spyOn(novelStatusService, "updateReviewStatus")
         jest
         .spyOn(novelStatusRepository, "addNovelStatusSnapshot")
         .mockResolvedValue({
             id: "cm6kp90yt0004ut5ox5lvvyfl",
-            snapshots: [{
-                id: "cm6ets2ih0001utu0whpyzwqf",
-                reason: "담당자 확인",
-                status: "reviewed",
-                responsiblePersonEmail: testData.responsiblePersonEmail,
-                responsiblePerson: testData.responsiblePerson,
-                createdAt: date,
-            }],
+            snapshots: mockStatusSnapshots,
             createdAt: date,
         })
 
         // private 메서드 접근을 위해 `as any` 사용
-        const sendReminderEmailSpy = jest
-        .spyOn(novelStatusService as any, "sendReminderEmail")
+        const sendEmailSpy = jest
+        .spyOn(mailService as any, "sendEmail")
         .mockImplementation(() => {})
         const assertSpy = jest
         .spyOn(novelStatusService as any, "assertNovelStatus")
@@ -154,7 +143,7 @@ describe("소설 상태 변경 모듈 테스트", () => {
         /// Expected called functions
         /// -----
         expect(assertSpy).toHaveBeenCalled()
-        expect(sendReminderEmailSpy).toHaveBeenCalled()
+        expect(sendEmailSpy).toHaveBeenCalled()
         expect(novelStatusService.updateReviewStatus).toHaveBeenCalled()
 
         /// -----
@@ -168,18 +157,18 @@ describe("소설 상태 변경 모듈 테스트", () => {
             "status": "reviewed",
             "responsiblePerson": "테스터",
             "responsiblePersonEmail": "tester@gmail.com",
-            "createdAt": date,
+            "createdAt": new Date(2025, 1, 31),
         })
 
-        // 성공 결과 저장
-        mockStatusSnapshotDB.push({
-            id: "cm6ets2ih0001utu0whpyzwqf",
-            reason: "담당자 확인",
-            status: "reviewed",
-            responsiblePersonEmail: testData.responsiblePersonEmail,
-            responsiblePerson: testData.responsiblePerson,
-            createdAt: date,
-        })
+        /// -----
+        /// Expected reject values
+        /// -----
+        await expect(novelStatusService.updateReviewStatus({
+            ...testData,
+            status: "hi",
+        }))
+        .rejects
+        .toStrictEqual(ERROR.BadRequest)
     })
     
     test("Prisma 트랜잭션 내부에서 기존의 상태와 변경하려는 상태를 비교하고 처리하는가", async () => {
@@ -188,20 +177,14 @@ describe("소설 상태 변경 모듈 테스트", () => {
             id: "cm6kp90yt0004ut5ox5lvvyfl",
             snapshots: [{
                 id: "cm6ets2ih0001utu0whpyzwqf",
-                reason: "미확인",
-                status: "pending",
+                reason: "담당자 확인",
+                status: "reviewed",
                 responsiblePersonEmail: testData.responsiblePersonEmail,
                 responsiblePerson: testData.responsiblePerson,
                 createdAt: date,
             }],
             createdAt: date,
         }
-
-        // const repoSpy = jest.spyOn(novelStatusRepository, "addNovelStatusSnapshot")
-        jest
-        .spyOn(NovelStatusProvider.Entity, "findUnique")
-        .mockResolvedValue(findUniqueExpectedResult)
-
         const updateExpectedResult: INovelStatusEntity = {
             id: "cm6kp90yt0004ut5ox5lvvyfl",
             snapshots: [{
@@ -216,9 +199,17 @@ describe("소설 상태 변경 모듈 테스트", () => {
         }
 
         jest
+        .spyOn(novelStatusRepository, "addNovelStatusSnapshot")
+        const findSpy = jest
+        .spyOn(NovelStatusProvider.Entity, "findUnique")
+        .mockResolvedValue(findUniqueExpectedResult)
+        const updateSpy = jest
         .spyOn(NovelStatusProvider.Entity, "update")
         .mockResolvedValue(updateExpectedResult)
 
+        /// -----
+        /// Expected reject values
+        /// -----
         await expect(novelStatusRepository.addNovelStatusSnapshot({
             statusId: testData.statusId,
             status: "reviewed",
@@ -228,8 +219,12 @@ describe("소설 상태 변경 모듈 테스트", () => {
             responsiblePersonEmail: testData.responsiblePersonEmail,
         }))
         .rejects
-        .toMatchObject(ERROR.NotFoundData)
-    })
+        .toMatchObject(ERROR.Conflict)
 
-    test.todo("반환되는 Dto의 데이터가 가장 최근에 생성된 snapshot 데이터가 맞는가")
+        /// -----
+        /// Expected have been calls
+        /// -----
+        expect(findSpy).toHaveBeenCalled()
+        expect(updateSpy).not.toHaveBeenCalled()
+    })
 })

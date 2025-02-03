@@ -1,5 +1,5 @@
 import { TypedBody, TypedQuery, TypedRoute } from "@nestia/core";
-import { Controller, Res } from "@nestjs/common";
+import { Controller, Res, UseGuards } from "@nestjs/common";
 import { Response } from "express";
 import { tags } from "typia"
 
@@ -11,6 +11,7 @@ import {
 } from "../service/novel.service";
 import { NovelUCICode } from "../provider";
 import { SuccessResponse } from "../common";
+import { RoleGuard } from "../guard/role.guard";
 
 @Controller("novel")
 export class NovelController {
@@ -74,8 +75,8 @@ export class NovelController {
                 requesterName: body.requester.requesterName,
                 requesterId: body.requester.requesterId,
             })
-            const responseObj: SuccessResponse<IRegistResultDto | boolean> = {
-                data: result,
+            const responseObj: SuccessResponse<IRegistResultDto | null> = {
+                data: typeof result === "function" ? null : result as IRegistResultDto,
                 message: "",
                 statusCode: 201
             }
@@ -85,8 +86,9 @@ export class NovelController {
             response.json(e)
         }
     }
-
+    
     @TypedRoute.Delete()
+    @UseGuards(new RoleGuard(["ADMIN"]))
     public async deleteNovel(
         @TypedQuery() query: Query.IGetNovelById,
         @Res() response: Response,
