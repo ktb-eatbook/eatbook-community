@@ -35,7 +35,7 @@ export class RequesterController {
         }
     }
 
-    @TypedRoute.Post()
+    @TypedRoute.Post("interest")
     public async registRequester(
         @TypedBody() body: Body.IRegistRequesterArgs,
         @Res() response: Response

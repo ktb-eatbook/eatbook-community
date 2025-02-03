@@ -60,7 +60,7 @@ export class NovelController {
         }
     }
 
-    @TypedRoute.Post()
+    @TypedRoute.Post("regist")
     public async registNovel(
         @TypedBody() body: Body.IRegistNovelArgs,
         @Res() response: Response,
