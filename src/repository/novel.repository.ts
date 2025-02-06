@@ -100,7 +100,7 @@ export class NovelRepository {
             .Entity
             .findMany({
                 skip: (page - 1) * 10,
-                take: page * 10,
+                take: 10,
                 where: {
                     deletedAt: null,
                 },
