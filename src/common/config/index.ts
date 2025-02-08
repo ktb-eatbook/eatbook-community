@@ -12,6 +12,13 @@ import * as fs from "fs"
 import * as path from "path"
 
 const whiteListPath = path.join(__dirname, "../../../../whitelist.txt")
-const listDatas = fs.readFileSync(whiteListPath, 'utf-8').split("\r\n")
+const isExistsFile = fs.existsSync(whiteListPath)
+let listDatas: string[]
+if(isExistsFile) {
+    listDatas = fs.readFileSync(whiteListPath, 'utf-8').split("\r\n")
+} else {
+    fs.writeFileSync(whiteListPath, '')
+    listDatas = []
+}
 
 export const allowIps: string[] = listDatas
