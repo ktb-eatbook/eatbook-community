@@ -71,7 +71,7 @@ export class NovelService {
     public async deleteNovel(id: NovelUCICode): Promise<boolean> {
         const deletedNovel = await this.novelRepository.deleteNovel(id)
         // 등록 요청한 소설이 삭제되었음을 알리는 알림 로직 추가
-        return deletedNovel !== undefined || deletedNovel !== null
+        return deletedNovel !== undefined
     }
 
     private async sendAlertEmail(

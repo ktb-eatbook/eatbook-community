@@ -112,9 +112,9 @@ export class NovelRepository {
             const totalCount = await NovelProvider
             .Entity
             .totalCount(tx)
-
+            
             return {
-                totalCount: Math.max(1, Math.floor(totalCount / 10)),
+                totalCount: Math.max(1, Math.ceil(totalCount / 10)),
                 list,
             } satisfies INovelEntityList
         })
