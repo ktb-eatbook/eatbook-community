@@ -18,6 +18,8 @@ import {
     IRequesterHistoryEntity 
 } from "../src/provider/entity/requester_history.entity"
 import { INovelSnapshotEntity } from "../src/provider/entity/novel_snapshot.entity"
+import { test_data } from "../private/mock_data"
+import { ERROR } from "../src/common"
 
 import * as dotenv from "dotenv"
 dotenv.config()
@@ -83,6 +85,7 @@ describe("소설 모듈 테스트", () => {
 
     let addRequesterSpy: jest.SpyInstance
     let findFirstSpy: jest.SpyInstance
+    let findUniqueSpy: jest.SpyInstance
     let upsertSpy: jest.SpyInstance
     let findManySpy: jest.SpyInstance
     let createSpy: jest.SpyInstance
@@ -102,7 +105,7 @@ describe("소설 모듈 테스트", () => {
         })
         createSpy = jest.spyOn(NovelProvider.Entity, "create")
         .mockImplementation(async args => {
-            createdAtDate = new Date(Date.now())
+            createdAtDate = new Date(2025, 1, Math.round(Math.random() * 10))
             const { sequence, requester } = args.data.requesters?.create! as any
             const { id: requesterId } = requester['connectOrCreate']['create']
             const { title, description, ref } = args.data.snapshots?.create!['info']['create']['snapshot']['create']
@@ -207,6 +210,21 @@ describe("소설 모듈 테스트", () => {
             /// -----
             expect(expectedResult).toBeDefined()
             expect(expectedResult.requesters.length).toBe(1)
+
+            /// 조회 테스트를 위한 데이터 삽입
+            await Promise.all(
+                test_data.map(
+                    async (data) => await novelRepository.registerNovel({
+                        id: data.id,
+                        novelDescription: data.novelInfo.novelDescription,
+                        novelTitle: data.novelInfo.novelTitle,
+                        ref: data.novelInfo.ref,
+                        requesterEmail: data.requester.requesterEmail,
+                        requesterId: data.requester.requesterId,
+                        requesterName: data.requester.requesterName,
+                    })
+                )
+            )
 
             addRequesterSpy.mockRestore()
         })
@@ -414,11 +432,104 @@ describe("소설 모듈 테스트", () => {
     })
 
     describe("소설 조회", () => {
-        test.todo("page와 orderBy를 기준으로 잘 조회되는가")
-        test.todo("iD를 기반으로 조회가 되는가")
+        test("page와 orderBy를 기준으로 잘 조회되는가", async () => {
+            findManySpy = jest
+            .spyOn(NovelProvider.Entity, "findMany")
+            .mockImplementation(async (args) => {
+               return mockNovelDB
+                .filter((novel) => novel.deleteAt === null)
+                .slice(args.skip, (args.skip ?? 0) + (args.take ?? 10))
+                .sort((a, b) => {
+                    if(args.orderBy!['createdAt'] === "desc") {
+                        if(a.createdAt > b.createdAt) return -1
+                        else if(a.createdAt < b.createdAt) return 1
+                        else return 0
+                    } else {
+                        if(a.createdAt > b.createdAt) return 1
+                        else if(a.createdAt < b.createdAt) return -1
+                        else return 0
+                    }
+                })
+            })
+            totalCountSpy = jest
+            .spyOn(NovelProvider.Entity, "totalCount")
+            .mockImplementation(async () => {
+                return Math.max(
+                    1,
+                    Math.ceil(
+                        mockNovelDB.filter(
+                            (novel) => novel.deleteAt === null
+                        ).length / 10
+                    )
+                )
+            })
+
+            const result = await novelService.getNovelList(1, "desc")
+            const latestNovelFromResult = result.list[0]
+            const latestNovelFromSort = result.list.sort((a, b) => {
+                if(a.createdAt > b.createdAt) return -1
+                else if(a.createdAt < b.createdAt) return 1
+                else return 0
+            })[0]
+
+            /// -----
+            /// Expected return values
+            /// -----
+            expect(latestNovelFromResult.id).toBe(latestNovelFromSort.id)
+            expect(latestNovelFromResult.createdAt).toStrictEqual(latestNovelFromSort.createdAt)
+            expect(latestNovelFromResult).toStrictEqual(latestNovelFromSort)
+        })
+        test("ID를 기반으로 조회가 되는가", async () => {
+            findUniqueSpy = jest
+            .spyOn(NovelProvider.Entity, "findUnique")
+            .mockImplementation(async (args) => {
+                const result = mockNovelDB
+                .filter((novel) => novel.deleteAt === null)
+                .find((novel) => novel.id === args.where.id)
+
+                if(!result) throw ERROR.NotFoundData
+                return result
+            })
+
+            const result1 = await novelService.getNovel("G905-20250221")
+            
+            /// -----
+            /// Expected return values
+            /// -----
+            expect(result1.id).toBe("G905-20250221")
+            await expect(novelService.getNovel("G905-20251234"))
+            .rejects
+            .toStrictEqual(ERROR.NotFoundData)
+
+            jest.restoreAllMocks()
+        })
     })
 
     describe("소설 삭제", () => {
-        test.todo("요청 시, softdelete 처리 되는가")
+        test("요청 시, softdelete 처리 되는가", async () => {
+            removeSpy = jest
+            .spyOn(NovelProvider.Entity, "remove")
+            .mockImplementation(async (args) => {
+                let targetIndex: number | undefined
+                return mockNovelDB
+                .map(
+                    (novel, index) => {
+                        if(novel.id === args) {
+                            novel.deleteAt = new Date(Date.now())
+                            targetIndex = index
+                        }
+                        return novel
+                    }
+                )[targetIndex ?? 999]
+            })
+            const result = await novelService.deleteNovel("G905-20250221")
+            const result2 = await novelService.deleteNovel("G905-20251234")
+
+            /// -----
+            /// Expected return values
+            /// -----
+            expect(result).toBe(true)
+            expect(result2).toBe(false)
+        })
     })
 })
