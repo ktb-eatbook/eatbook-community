@@ -59,3 +59,5 @@ private
 swagger
 sdk
 whitelist.txt
+
+compose.yaml
