@@ -28,7 +28,7 @@ markdown에 관한 내용은 다음을 통해 확인할 수 있습니다.
 
 ### 환경  
 
->NodeJS v20.18.0 Postgresql v17.2.0
+>NodeJS v20.18.0 Postgresql v17.2.0  
 >env 파일과 compose 파일을 CI 과정에서 추가해주어야 합니다. 관련 내용은 노션에 정리해두었습니다.
 
 ### 설치  
