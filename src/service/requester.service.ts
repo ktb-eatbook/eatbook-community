@@ -23,9 +23,9 @@ export class RequesterService {
         return result
     }
 
-    public async registRequester(args: IAddRequesterArgs): Promise<IRequesterDto> {
+    public async addFavoriteNovel(args: IAddRequesterArgs): Promise<IRequesterDto> {
         const result = await this.requsterRepository
-        .addRequester(args)
+        .registFavoriteNovel(args)
         .then(packedRequesterDto)
         return result
     }

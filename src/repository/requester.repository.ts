@@ -33,7 +33,7 @@ export class RequesterRepository {
         })
     }
 
-    public async addRequester(args: IAddRequesterArgs): Promise<IRequesterEntity> {
+    public async registFavoriteNovel(args: IAddRequesterArgs): Promise<IRequesterEntity> {
         return PrismaService.client.$transaction(async (tx) => {
             const maxSequence = (await RequesterHistoryProvider
             .Entity

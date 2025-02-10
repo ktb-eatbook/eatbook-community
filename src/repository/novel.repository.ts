@@ -26,7 +26,7 @@ export class NovelRepository {
             
             if(isAlreadyNovel !== null && isAlreadyNovel !== undefined) {
                 /// 이미 등록 된 소설일 경우, 히스토리를 기록합니다.
-                return await this.requesterRepository.addRequester({
+                return await this.requesterRepository.registFavoriteNovel({
                     email: args.requesterEmail,
                     name: args.requesterName,
                     novelId: args.id,

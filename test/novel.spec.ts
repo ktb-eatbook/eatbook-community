@@ -182,7 +182,7 @@ describe("소설 모듈 테스트", () => {
 
         test("소설 등록이 정상적으로 되는가", async () => {
             addRequesterSpy = jest
-            .spyOn(requesterRepository, "addRequester")
+            .spyOn(requesterRepository, "registFavoriteNovel")
             .mockReturnThis()
 
             await novelRepository.registerNovel({
@@ -225,7 +225,6 @@ describe("소설 모듈 테스트", () => {
                     })
                 )
             )
-
             addRequesterSpy.mockRestore()
         })
 
@@ -235,7 +234,7 @@ describe("소설 모듈 테스트", () => {
             /// -----
             /// Mocking
             /// -----
-            addRequesterSpy = jest.spyOn(requesterRepository, "addRequester")
+            addRequesterSpy = jest.spyOn(requesterRepository, "registFavoriteNovel")
             findFirstSpy = jest.spyOn(RequesterHistoryProvider.Entity, "findFirst")
             .mockImplementation(async (args) => {
                 const novelIndex = mockNovelIndexDB[args.where!.novelId! as string]
@@ -294,7 +293,7 @@ describe("소설 모듈 테스트", () => {
                 }
             })
             
-            await requesterRepository.addRequester({
+            await requesterRepository.registFavoriteNovel({
                 requesterId: "requetserId-test2",
                 novelId: "test-123456789",
                 email: "tester2@gmail.com",
@@ -321,7 +320,7 @@ describe("소설 모듈 테스트", () => {
 
         test("중복 요청이 정상적으로 잘 처리 되는가", async () => {
             createdAtDate = new Date(Date.now())
-            addRequesterSpy = jest.spyOn(requesterRepository, "addRequester")
+            addRequesterSpy = jest.spyOn(requesterRepository, "registFavoriteNovel")
 
             await novelRepository.registerNovel({
                 id: "test-123456789",
