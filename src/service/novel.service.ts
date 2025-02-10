@@ -111,7 +111,7 @@ import { tags } from "typia"
 
 export interface IRegistResultDto {
     novel: INovelDto
-    requesterId: string & tags.MaxLength<38>
+    requesterId: string & tags.MaxLength<30>
 }
 
 export interface INovelDto {

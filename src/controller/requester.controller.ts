@@ -41,7 +41,7 @@ export class RequesterController {
         @Res() response: Response
     ) {
         try {
-            const result = await this.requesterService.registRequester({
+            const result = await this.requesterService.addFavoriteNovel({
                 novelId: body.novelId,
                 email: body.email,
                 name: body.name,
