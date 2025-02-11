@@ -1,5 +1,4 @@
 import { PrismaClient } from "@prisma/client"
-import { test_data } from "../private/mock_data"
 
 (async () => {
     const client = new PrismaClient()
@@ -11,38 +10,21 @@ import { test_data } from "../private/mock_data"
     
         console.log("테스트 데이터 삽입...")
         const result = await Promise.all(
-            test_data.map(
-                async (data) => await client
+            new Array(40000).fill(0).map(
+                async (_, index) => await client
                 .novel
                 .create({
                     data: {
-                        id: data.id,
-                        requesters: {
-                            create: {
-                                sequence: 1,
-                                requester: {
-                                    connectOrCreate: {
-                                        create: {
-                                            id: data.requester.requesterId,
-                                            email: data.requester.requesterEmail,
-                                            name: data.requester.requesterName,
-                                        },
-                                        where: {
-                                            id: data.requester.requesterId,
-                                        }
-                                    }
-                                }
-                            },
-                        },
+                        id: `G905-${`${index}`.padStart(8, "0")}`,
                         snapshots: {
                             create: {
                                 info: {
                                     create: {
                                         snapshot: {
                                             create: {
-                                                title: data.novelInfo.novelTitle,
-                                                description: data.novelInfo.novelDescription,
-                                                ref: data.novelInfo.ref,
+                                                title: "음메에에에",
+                                                description: "양을 보며 힐링",
+                                                ref: "https://www.youtube.com/shorts/ddad_taH_PE",
                                             }
                                         }
                                     }
