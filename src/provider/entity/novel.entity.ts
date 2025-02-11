@@ -12,7 +12,7 @@ export interface INovelEntity {
 
 export interface IRequesterIds {
     historyId: string & tags.MaxLength<30>
-    requesterId: string & tags.MaxLength<30>
+    requesterId: string & tags.MaxLength<38>
     sequence: number & tags.Minimum<1>
 }
 

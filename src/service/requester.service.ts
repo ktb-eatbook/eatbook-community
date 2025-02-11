@@ -34,7 +34,7 @@ export class RequesterService {
 import { tags } from "typia"
 
 export interface IRequesterDto {
-    id: string & tags.MaxLength<30>
+    id: string & tags.MaxLength<38>
     email: string & tags.Format<"email">
     name: string
     histories: IRequesterHistoryDto[]
