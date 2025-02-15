@@ -2,9 +2,6 @@
 name: Eatbook-Community-Server
 
 on:
-  push:
-    branches:
-      - master
   pull_request:
     branches:
       - master
