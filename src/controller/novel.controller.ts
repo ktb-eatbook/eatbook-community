@@ -1,7 +1,7 @@
 import { TypedBody, TypedQuery, TypedRoute } from "@nestia/core";
 import { Controller, Res, UseGuards } from "@nestjs/common";
 import { Response } from "express";
-import { tags } from "typia"
+import { tags, TypeGuardError } from "typia"
 
 import { 
     INovelDto, 
@@ -76,14 +76,26 @@ export class NovelController {
                 requesterId: body.requester.requesterId,
             })
             const responseObj: SuccessResponse<IRegistResultDto | null> = {
-                data: typeof result === "function" ? null : result as IRegistResultDto,
+                data: result,
                 message: "",
                 statusCode: 201
             }
 
             response.json(responseObj)
         } catch(e) {
-            response.json(e)
+            /// service 레이어에서 TypeGuardError가 오는 경우는
+            /// 이미 등록되어 있는 소설이기 떄문에 관심 표시처리가 되어
+            /// 소설 Entity가 반환 되지 않는 경우뿐
+            /// 이 경우는 요청은 정상적으로 성공한 것으로 간주
+            if(e instanceof TypeGuardError) {
+                response.json({
+                    data: null,
+                    message: "",
+                    statusCode: 201,
+                })
+            } else {
+                response.json(e)
+            }
         }
     }
     

@@ -32,10 +32,10 @@ export class NovelService {
 
     /// 소설 등록에 성공할 경우 IRegistResultDto를 반환
     /// 이미 존재하는 소설을 등록할 경우 boolean을 반환
-    public async registerNovel(args: IRegisterNovelArgs): Promise<IRegistResultDto | void> {
+    public async registerNovel(args: IRegisterNovelArgs): Promise<IRegistResultDto | null> {
         const result = await this.novelRepository.registerNovel(args)
 
-        if((result as INovelEntity).snapshots !== undefined) {
+        if(this.isNovelEntity(result)) {
             const novelEntity = result as INovelEntity
             this.sendAlertEmail(
                 novelEntity,
@@ -47,6 +47,8 @@ export class NovelService {
                 novel: packedNovelDto(novelEntity),
                 requesterId: novelEntity.requesters[0].requesterId,
             } satisfies IRegistResultDto
+        } else {
+            return null
         }
     }
 
@@ -72,6 +74,17 @@ export class NovelService {
         const deletedNovel = await this.novelRepository.deleteNovel(id)
         // 등록 요청한 소설이 삭제되었음을 알리는 알림 로직 추가
         return deletedNovel !== undefined
+    }
+
+    private isNovelEntity(obj: any): obj is INovelEntity {
+        if("id" in obj
+        && "deleteAt" in obj
+        && assert<NovelUCICode>(obj.id)
+        ) {
+            return true
+        } else {
+            return false
+        }
     }
 
     private async sendAlertEmail(
@@ -107,7 +120,7 @@ export class NovelService {
     }
 }
 
-import { tags } from "typia"
+import { assert, tags } from "typia"
 
 export interface IRegistResultDto {
     novel: INovelDto
